@@ -69,59 +69,23 @@ def thread_run():
     import threading
 
     bot = Bot("biba")
-    bot2 = Bot("boba")
     site = FlaskApp()
     site.add_callback(bot.send_support_message)
-    site.add_callback(bot2.send_support_message)
 
     site.add_dead_callback(bot.send_site_dead_message)
-    site.add_dead_callback(bot2.send_site_dead_message)
 
     bot_thread = threading.Thread(target=bot.polling)
-    bot2_thread = threading.Thread(target=bot2.polling)
     flask_thread = threading.Thread(target=site.run)
 
     print("ready to launch")
     bot_thread.start()
-    bot2_thread.start()
     flask_thread.start()
 
 
     print("started")
     bot_thread.join()
-    bot2_thread.join()
     print("bot joined")
     flask_thread.join()
-    print("flask joined")
-
-
-def process_run():
-    from multiprocessing import Process
-    bot = Bot("biba")
-    bot2 = Bot("boba")
-    site = FlaskApp()
-    site.add_callback(bot.send_support_message)
-    site.add_callback(bot2.send_support_message)
-
-    site.add_dead_callback(bot.send_site_dead_message)
-    site.add_dead_callback(bot2.send_site_dead_message)
-
-    bot1_process = Process(target=bot.polling)
-    bot2_process = Process(target=bot2.polling)
-    flask_process = Process(target=site.run)
-
-    print("ready to launch")
-    bot1_process.start()
-    bot2_process.start()
-    flask_process.start()
-
-    print("started")
-
-    bot1_process.join()
-    print("bot1 joined")
-    bot2_process.join()
-    print("bot2 joined")
-    flask_process.join()
     print("flask joined")
 
 
