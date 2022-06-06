@@ -32,6 +32,7 @@ class BotThread:
 
     def __init__(self, token: str) -> None:
         self._token = token
+        self.application = None
 
     def add_callback(self, callback: Callable):
         self._callbacks.append(callback)
@@ -44,7 +45,7 @@ class BotThread:
         )
 
     def polling(self):
-        application = Application.builder().token(self._token).build()
+        self.application = Application.builder().token(self._token).build()
 
         # async def handler(*args, **kwargs):
         #     await self._callbacks[0].__call__(*args, **kwargs)
@@ -52,9 +53,21 @@ class BotThread:
         handler = self._callbacks[0]
 
         text_handler = MessageHandler(filters.TEXT, handler)
-        application.add_handler(text_handler)
+        self.application.add_handler(text_handler)
 
-        application.run_polling()
+        # await self.application.initialize()
+        # await self.application.updater.start_polling()
+        # await self.application.start()
+        self.application.run_polling()
+
+    # def run(self):
+    #     asyncio.run(self.polling())
+    #     self.polling()
+    #     asyncio.create_task(self.application.process_update(self.application.update_queue))
+    #     while True:
+    #
+    #         loop.run_until_complete()
+    #         import time;time.sleep(3);logging.info('TG bot thread is running')
 
 
 class FlaskThread:
@@ -74,7 +87,7 @@ class FlaskThread:
 
     def run(self):
         while True:
-            pass  # TODO Flask
+            import time; time.sleep(3); logging.info('Flask thread is running')
 
 
 def thread_run():
@@ -88,22 +101,17 @@ def thread_run():
     tg_thread.add_callback(flask_thread.send_some_api_to_front_callback)
     flask_thread.add_callback(tg_thread.send_message)
 
-    bot_thread = threading.Thread(target=asyncio.run, args=(tg_thread.polling(),))  # TODO blocks code below
-    flask_thread = threading.Thread(target=flask_thread.run)
+    flask_thread2 = threading.Thread(target=flask_thread.run)
+    flask_thread2.start()
 
-    logging.info("ready to launch")
-    bot_thread.start()
-    flask_thread.start()
-
-    logging.info("started")
-    bot_thread.join()
-    flask_thread.join()
+    bot_thread = threading.Thread(target=asyncio.run, args=(tg_thread.polling(),))
+    # bot_thread = threading.Thread(target=tg_thread.run)
 
 
 if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO,
-        format='[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s',
+        # format='[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s',
         datefmt='%H:%M:%S'
     )
 
