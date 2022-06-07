@@ -35,8 +35,7 @@ class FlaskThread:
 
     # @app.route("/", methods=['GET'])
     def index(self):
-        return '123'
-        # return render_template("index.html")
+        return render_template("index.html")
 
     # @app.route("/frame", methods=['GET'])
     def frame_get(self):
@@ -46,7 +45,9 @@ class FlaskThread:
         #     return redirect('/')
 
         # response = requests.get('bot-api', params={'token': token})
-        # chat_data = response.json().get('frame', None)
+        # frame = response.json()['frame']
+
+        # return frame
 
         return render_template('form.html')
 
