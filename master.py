@@ -1,4 +1,5 @@
 import asyncio
+import threading
 from typing import Callable
 
 import telegram
@@ -16,14 +17,6 @@ def call_decorator(func):
         return func(*args, **kwargs)
 
     return inner
-
-
-def run(func):
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-
-    loop.run_until_complete(func.__call__())
-    loop.close()
 
 
 class BotThread:
@@ -47,28 +40,12 @@ class BotThread:
     def polling(self):
         self.application = Application.builder().token(self._token).build()
 
-        # async def handler(*args, **kwargs):
-        #     await self._callbacks[0].__call__(*args, **kwargs)
-
         handler = self._callbacks[0]
 
         text_handler = MessageHandler(filters.TEXT, handler)
         self.application.add_handler(text_handler)
 
-        # await self.application.initialize()
-        # await self.application.updater.start_polling()
-        # await self.application.start()
         self.application.run_polling()
-
-    # def run(self):
-    #     asyncio.run(self.polling())
-    #     self.polling()
-    #     asyncio.create_task(self.application.process_update(self.application.update_queue))
-    #     while True:
-    #
-    #         loop.run_until_complete()
-    #         import time;time.sleep(3);logging.info('TG bot thread is running')
-
 
 class FlaskThread:
     _callbacks: list[Callable] = list()
@@ -91,8 +68,6 @@ class FlaskThread:
 
 
 def thread_run():
-    import threading
-
     token = '5558795989:AAGL-wdNB597fVr-VI-pzTfxeO-WdIA-vAg'  # TODO manage token
 
     tg_thread = BotThread(token)
@@ -101,11 +76,11 @@ def thread_run():
     tg_thread.add_callback(flask_thread.send_some_api_to_front_callback)
     flask_thread.add_callback(tg_thread.send_message)
 
-    flask_thread2 = threading.Thread(target=flask_thread.run)
-    flask_thread2.start()
+    # Start flask thread
+    threading.Thread(target=flask_thread.run).start()
 
-    bot_thread = threading.Thread(target=asyncio.run, args=(tg_thread.polling(),))
-    # bot_thread = threading.Thread(target=tg_thread.run)
+    # asyncio automatically starts loop
+    threading.Thread(target=asyncio.run, args=(tg_thread.polling(),))
 
 
 if __name__ == "__main__":
