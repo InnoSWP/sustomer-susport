@@ -1,5 +1,7 @@
-import asyncio
+import os
+import dotenv
 import logging
+import asyncio
 import threading
 from typing import Callable
 
@@ -39,10 +41,8 @@ class BotThread:
         self.application.run_polling()
 
 
-def thread_run():
-    token = '5558795989:AAGL-wdNB597fVr-VI-pzTfxeO-WdIA-vAg'  # TODO manage token
-
-    tg_thread = BotThread(token)
+def setup_threads(tg_token):
+    tg_thread = BotThread(tg_token)
     flask_thread = FlaskThread()
 
     tg_thread.add_callback(flask_thread.send_some_api_to_front_callback)
@@ -62,4 +62,7 @@ if __name__ == "__main__":
         datefmt='%H:%M:%S'
     )
 
-    thread_run()
+    dotenv_file = dotenv.load_dotenv('.env')
+    telegram_token = os.getenv('TG_TOKEN')
+
+    setup_threads(telegram_token)
