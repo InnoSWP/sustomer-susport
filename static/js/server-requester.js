@@ -7,7 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const sendFormUrl = "/viewform";
+alert("HEY");
+const sendFormUrl = "/messages";
 function displayServerResponse(message) {
     alert(message);
 }
@@ -16,11 +17,16 @@ function sendRequest(request, url) {
         return yield window.fetch(url, request);
     });
 }
+let request_body = {
+    text: "simple test message",
+    user_id: "awesome user id",
+};
 let postRequest = {
     method: "POST",
     headers: { "content-type": "application/json;charset=UTF-8" },
-    body: "token_id: awesomeToken, text:test",
+    body: JSON.stringify(request_body)
 };
+console.log(postRequest.body);
 let response = sendRequest(postRequest, sendFormUrl);
 response.then(function (value) {
     value.text().then(displayServerResponse, function onError(error) {
@@ -29,5 +35,4 @@ response.then(function (value) {
 }, function (error) {
     alert("Some error received: " + error);
 });
-alert("HEY");
 //# sourceMappingURL=server-requester.js.map
