@@ -23,7 +23,7 @@ interface RequestData {
 
 let postRequest: BasicRequest = {
   method: "POST",
-  headers: '"content-type": "application/json;charset=UTF-8"',
+  headers: {"content-type": "application/json;charset=UTF-8"},
   body: "token_id: awesomeToken, text:test",
 };
 
@@ -38,3 +38,6 @@ response.then(
     alert("Some error received: " + error);
   }
 );
+
+
+alert("HEY");
