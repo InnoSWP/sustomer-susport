@@ -1,3 +1,5 @@
+import os
+
 from typing import Callable
 
 from flask import Flask, request, render_template
@@ -12,7 +14,7 @@ class FlaskThread:
 
     def __init__(self):
         self.app = Flask(__name__)
-        self.app.config['SECRET_KEY'] = 'huy'
+        self.app.config['SECRET_KEY'] = os.urandom(12)
 
         self.app.add_url_rule('/', view_func=self.index)
         self.app.add_url_rule('/frame', view_func=self.frame_get, methods=['GET'])
