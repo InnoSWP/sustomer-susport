@@ -56,3 +56,4 @@ class FlaskThread:
         data: dict = request.json
         text = data.get('text', None)
         user_id = data.get('user_id', None)
+        return "nice"
