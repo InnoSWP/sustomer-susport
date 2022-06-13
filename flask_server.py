@@ -1,3 +1,4 @@
+import typing
 from typing import Callable
 
 from flask import Flask, request, render_template
@@ -21,39 +22,50 @@ class FlaskThread:
     def add_callback(self, callback: Callable):
         self._callbacks.append(callback)
 
+    # Invoked by handler trigger
     @call_decorator
-    async def send_some_api_to_front_callback(self, update: Update, context: CallbackContext.DEFAULT_TYPE):
+    async def send_some_api_to_front_callback(self, update: Update, _: CallbackContext.DEFAULT_TYPE):
         chat_id = update.effective_chat.id
-        bot = context.bot
 
         send_message = self._callbacks[0]
 
-        await send_message(bot, chat_id, update.message.text + '123')
+        await send_message(chat_id, update.message.text + '123')
 
     def run(self):
         return self.app.run()
 
-    # @app.route("/", methods=['GET'])
-    def index(self):
+    @staticmethod
+    def index():
+        """
+        /, [GET]
+        """
         return render_template("index.html")
 
-    # @app.route("/frame", methods=['GET'])
-    def frame_get(self):
-        # token = data.args.get('token')
-
-        # if not token:
-        #     return redirect('/')
-
-        # response = requests.get('bot-api', params={'token': token})
-        # frame = response.json()['frame']
-
-        # return frame
-
+    @staticmethod
+    def frame_get():
+        """
+        /frame, [GET]
+        """
         return render_template('form.html')
 
-    # @app.route("/messages", methods=['POST'])
     def messages_post(self):
+        """
+        /messages [POST]
+        JSON Format:
+            {
+                user_id: int
+                text: str
+            }
+        """
+
         data: dict = request.json
+
         text = data.get('text', None)
         user_id = data.get('user_id', None)
-        return "nice"
+
+        message_to_send = f'{user_id}: {text}'
+
+        send_message = self._callbacks[0]
+        send_message(0, message_to_send)
+
+        return 'niceee'
