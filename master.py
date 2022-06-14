@@ -5,7 +5,6 @@ import asyncio
 import threading
 from typing import Callable
 
-import telegram
 from telegram.ext import Application, MessageHandler, filters
 
 from flask_server import FlaskThread
@@ -24,8 +23,8 @@ class BotThread:
         self._callbacks.append(callback)
 
     @call_decorator
-    async def send_message(self, bot: telegram.Bot, chat_id: int, message_text: str):
-        await bot.send_message(
+    async def send_message(self, chat_id: int, message_text: str):
+        await self.application.bot.send_message(
             chat_id=chat_id,
             text=message_text,
         )
