@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 from typing import Callable
@@ -67,6 +68,6 @@ class FlaskThread:
         message_to_send = f'{user_id}: {text}'
 
         send_message = self._callbacks[0]
-        send_message(0, message_to_send)
+        asyncio.run(send_message(325805942, message_to_send))
 
         return 'niceee'
