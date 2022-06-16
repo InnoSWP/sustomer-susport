@@ -42,19 +42,25 @@ class FirestoreDatabase:
         questions_ref = self.db.collection(u'questions').document(u'keys')
         questions_dict = questions_ref.get().to_dict()
 
-        questions: list[QuestionEntry] = [QuestionEntry(key, questions_dict[key]) for key in questions_dict]
+        questions: list[QuestionEntry] = [QuestionEntry(key, questions_dict[key][0], questions_dict[key][1])
+                                          for key in questions_dict]
 
         return questions
 
+    # Returns answer if found exactly the same key
     def get_answer(self, question_key: (str, QuestionEntry)):
         question_ref = self.db.collection(u'questions').document(u'keys')
         question_dic = question_ref.get().to_dict()
 
-        return question_dic.get(str(question_key), None)
+        answer = question_dic.get(str(question_key), None)
+        if answer:
+            return answer[1]
+        else:
+            return None
 
     def set_question(self, question: QuestionEntry):
         question_ref = self.db.collection(u'questions').document(u'keys')
-        question_data = {question.key: question.answer}
+        question_data = {question.key: [question.question, question.answer]}
 
         question_ref.update(question_data)
 
@@ -66,3 +72,5 @@ class FirestoreDatabase:
 
 
 database = FirestoreDatabase("sustomer-susport-private-key.json")
+for q in database.questions():
+    print(f"{q.key}\n{q.question}: {q.answer}")
