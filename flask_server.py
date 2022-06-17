@@ -50,7 +50,7 @@ class FlaskThread:
         """
         return render_template('form.html')
 
-    def messages_post(self):
+    async def messages_post(self):
         """
         /messages [POST]
         JSON Format:
@@ -68,6 +68,6 @@ class FlaskThread:
         message_to_send = f'{user_id}: {text}'
 
         send_message = self._callbacks[0]
-        asyncio.run(send_message(325805942, message_to_send))
+        await send_message(325805942, message_to_send)
 
         return 'niceee'
