@@ -1,13 +1,9 @@
-import asyncio
 import os
 
 from typing import Callable
 
 from flask import Flask, request, render_template
 from telegram import Update
-from telegram.ext import CallbackContext
-
-from utils import call_decorator
 
 
 class FlaskThread:
@@ -24,9 +20,8 @@ class FlaskThread:
     def add_callback(self, callback: Callable):
         self._callbacks.append(callback)
 
-    # Invoked by handler trigger
-    @call_decorator
-    async def send_some_api_to_front_callback(self, update: Update, _: CallbackContext.DEFAULT_TYPE):
+    # Invoked by application handler [filters.TEXT]
+    async def flask_callback(self, update: Update, _):
         chat_id = update.effective_chat.id
 
         send_message = self._callbacks[0]
@@ -69,5 +64,6 @@ class FlaskThread:
 
         send_message = self._callbacks[0]
         await send_message(325805942, message_to_send)
+        # await send_message(325805942, message_to_send)
 
         return 'niceee'

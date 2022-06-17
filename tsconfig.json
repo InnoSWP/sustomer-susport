@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-		"outDir": "./static/js",
+		"outDir": "./flask_server/static/js",
 		"rootDir": "./ts-modules",
     "removeComments": true,
     "preserveConstEnums": true,
