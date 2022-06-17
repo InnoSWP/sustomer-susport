@@ -1,4 +1,4 @@
-import os
+import os, dotenv
 
 from typing import Callable
 
@@ -63,7 +63,9 @@ class FlaskThread:
         message_to_send = f'{user_id}: {text}'
 
         send_message = self._callbacks[0]
-        await send_message(325805942, message_to_send)
+
+        chat_id = dotenv.dotenv_values('flask_server/.env')['TEST_CHAT_ID']
+        await send_message(chat_id, message_to_send)
         # await send_message(325805942, message_to_send)
 
         return 'niceee'

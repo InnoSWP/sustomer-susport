@@ -1,4 +1,4 @@
-telegram_server/.env
+.env
 .idea/
 .vim/
 # Byte-compiled / optimized / DLL files
