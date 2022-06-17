@@ -35,4 +35,4 @@ response.then(function (value) {
 }, function (error) {
     alert("Some error received: " + error);
 });
-//# sourceMappingURL=server-requester.js.map
+//# sourceMappingURL=debug-script.js.map
