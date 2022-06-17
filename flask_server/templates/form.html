@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Form</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}form{%endblock%}
+{% block body %}
 <h1>Simple form</h1>
 <form>
     <label for="question_text">Question</label><br>
     <input type="text" id="question_text" name="question_text"><br>
 </form>
-</body>
-</html>
+{%endblock%}
