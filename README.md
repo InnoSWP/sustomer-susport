@@ -15,21 +15,21 @@ you need
 
 ### Add telegram token
 - move to bot directory 
-`cd ./telegram_server`
+```cd ./telegram_server```
 - copy `.env.tpl` 
-`cp .env.tpl .env`
+```cp .env.tpl .env```
 - add your token to `.env` file (Use any text editor)
-`vim .env`
+```vim .env```
 - go back to project root
-`cd ..`
+```cd ..```
 
 ### Install python requirements
 - you may wish to use python virtual env
 - install dependencies via `pip`
-`pip install -r requirements.txt`
+```pip install -r requirements.txt```
 
 ### Run server
-`python ./master_router.py`
+```python ./master_router.py```
 
 ## For developers
 - we provide `run.sh` script and `ts.config` to automate process of recompiling 
