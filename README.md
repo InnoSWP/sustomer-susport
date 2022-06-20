@@ -17,19 +17,19 @@ you need
 - move to bot directory\
 
 ```cd ./telegram_server```
-- copy `.env.tpl`\
+- copy `.env.tpl`
 
 ```cp .env.tpl .env```
-- add your token to `.env` file (Use any text editor)\
+- add your token to `.env` file (Use any text editor)
 
 ```vim .env```
-- go back to project root\
+- go back to project root
 
 ```cd ..```
 
 ### Install python requirements
 - you may wish to use python virtual env
-- install dependencies via `pip`\
+- install dependencies via `pip`
 
 ```pip install -r requirements.txt```
 
