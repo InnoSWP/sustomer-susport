@@ -14,7 +14,7 @@ you need
 - `pip` corresponding to your python version
 
 ### Add telegram token
-- move to bot directory\
+- move to bot directory
 
 ```cd ./telegram_server```
 - copy `.env.tpl`
