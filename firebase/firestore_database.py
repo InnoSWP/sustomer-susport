@@ -69,8 +69,3 @@ class FirestoreDatabase:
         question_data = {str(question): firestore.DELETE_FIELD}
 
         question_ref.update(question_data)
-
-
-database = FirestoreDatabase("sustomer-susport-private-key.json")
-for q in database.questions():
-    print(f"{q.key}\n{q.question}: {q.answer}")
