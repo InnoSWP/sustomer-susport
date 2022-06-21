@@ -2,12 +2,15 @@ import os, dotenv
 
 from typing import Callable
 
-from flask import Flask, request, render_template
+import requests
+from flask import Flask, request, render_template, jsonify
 from telegram import Update
 
 
 class FlaskThread:
+    NLP_CHECK = True
     _callbacks: list[Callable] = list()
+    messages_to_proceed: list[str] = []
 
     def __init__(self):
         self.app = Flask(__name__)
@@ -16,6 +19,7 @@ class FlaskThread:
         self.app.add_url_rule('/', view_func=self.index)
         self.app.add_url_rule('/frame', view_func=self.frame_get, methods=['GET'])
         self.app.add_url_rule('/messages', view_func=self.messages_post, methods=['POST'])
+        self.app.add_url_rule('/messages', view_func=self.messages_get, methods=['GET'])
 
     def add_callback(self, callback: Callable):
         self._callbacks.append(callback)
@@ -24,9 +28,11 @@ class FlaskThread:
     async def flask_callback(self, update: Update, _):
         chat_id = update.effective_chat.id
 
-        send_message = self._callbacks[0]
+        msg_text = update.message.text
+        self.messages_to_proceed.append(msg_text)
 
-        await send_message(chat_id, update.message.text + '123')
+        send_message = self._callbacks[0]
+        await send_message(chat_id, 'Your msg recieved')
 
     def run(self):
         return self.app.run()
@@ -45,6 +51,16 @@ class FlaskThread:
         """
         return render_template('form.html')
 
+    def messages_get(self):
+        """
+        /messages [GET]
+        """
+
+        result = jsonify(self.messages_to_proceed)
+        self.messages_to_proceed = []
+
+        return result
+
     async def messages_post(self):
         """
         /messages [POST]
@@ -60,12 +76,21 @@ class FlaskThread:
         text = data.get('text', None)
         user_id = data.get('user_id', None)
 
-        message_to_send = f'{user_id}: {text}'
+        if self.NLP_CHECK:
+            base_nlp_router_url = 'http://127.0.0.1:8000'
+            similar_endpoint = '/similar'
+            result_url = f'{base_nlp_router_url}{similar_endpoint}'
 
-        send_message = self._callbacks[0]
+            resp = requests.get(result_url, {'question': text})
+            similarity_index = list(resp.json().items())[0][1]
+            return jsonify(similarity_index)
+        else:
+            message_to_send = f'{user_id}: {text}'
 
-        chat_id = dotenv.dotenv_values('flask_server/.env')['TEST_CHAT_ID']
-        await send_message(chat_id, message_to_send)
-        # await send_message(325805942, message_to_send)
+            send_message = self._callbacks[0]
+
+            chat_id = dotenv.dotenv_values('flask_server/.env')['TEST_CHAT_ID']
+            await send_message(chat_id, message_to_send)
+            # await send_message(325805942, message_to_send)
 
         return 'niceee'

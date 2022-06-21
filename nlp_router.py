@@ -1,11 +1,13 @@
 import uvicorn
 from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND
-from firestore_database import FirestoreDatabase
-from question_entry import QuestionEntry
+from firebase.firestore_database import FirestoreDatabase
+from firebase.question_entry import QuestionEntry
 from fastapi import FastAPI, Response
 from pydantic import BaseModel
 
-SIM_CONST = 0.75
+from nlp import susSimProvider
+
+SIMILARITY_CONST = 0.75
 app = FastAPI()
 cached_questions: list[QuestionEntry] = []
 fd = FirestoreDatabase("firebase/sustomer-susport-private-key.json")
@@ -29,12 +31,20 @@ def index():
 
 @app.get("/similar")
 def similar_questions(question: str, index: float = SIM_CONST):
+    """
+    /similar [GET]
+    :param question : question text
+    :param index : similarity threshold
+    """
     global cached_questions
-    # TODO: search for similar question
+    question_key = susSimProvider.encode_question(question)
+    top_similar = []
     for q in cached_questions:
-        print(f"{q.question}: {q.answer}")
+        cur_sim = susSimProvider.similarity(question_key, q.key)
+        if cur_sim > index:
+            top_similar.append({"question": q.question, "answer": q.answer})
 
-    return {question: str(index)}
+    return top_similar
 
 
 @app.post("/new", status_code=201)
