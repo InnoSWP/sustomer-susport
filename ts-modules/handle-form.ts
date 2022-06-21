@@ -9,7 +9,7 @@ function form2text(form: HTMLElement): string {
   return core.html2text(el);
 }
 
-function submitForm(form: HTMLElement): void {
+function submitForm(form: HTMLElement, container: HTMLElement): void {
   const value: string = form2text(form);
   console.log(value);
   sendMessage({
@@ -17,12 +17,12 @@ function submitForm(form: HTMLElement): void {
     user_id: 1337,
   });
   const history = getLocalChat();
-  storeChat(
-    addMessage(history, {
-      author: userIsAuthor,
-      text: value,
-    })
-  );
+  const newHistory = addMessage(history, {
+    author: userIsAuthor,
+    text: value,
+  });
+  displayChat(newHistory, container);
+  storeChat(newHistory);
 }
 
 function sendMessage(msg: core.MessageRequestBody) {
@@ -89,12 +89,22 @@ function deleteChildren(container: HTMLElement) {
 function addChildren(container: HTMLElement, children: HTMLElement[]) {
   children.map((child) => container.appendChild(child));
 }
+function displayChat(chat: ChatHistory, container: HTMLElement): void {
+  const chatElementsHtml = chat.map((value: ChatEntry) => {
+    return displayMessage(value);
+  });
+  deleteChildren(container);
+  addChildren(container, chatElementsHtml);
+}
 
 function getUpdatesForMessages(container: HTMLElement) {
   function onSuccess(response: Response): void {
     response.text().then((value: string) => {
       const data: string[] = JSON.parse(value);
-      if (data.length == 0) return;
+      if (data.length == 0) {
+        displayChat(getLocalChat(), container);
+        return;
+      }
 
       {
         const newMessages = data.map((value) => {
@@ -102,15 +112,10 @@ function getUpdatesForMessages(container: HTMLElement) {
         });
         const chatHistory = getLocalChat().concat(newMessages);
         storeChat(chatHistory);
-
-        const chatElementsHtml = chatHistory.map((value: ChatEntry) => {
-          return displayMessage(value);
-        });
-        deleteChildren(container);
-        addChildren(container, chatElementsHtml);
+        displayChat(chatHistory, container);
       }
 
-      appendAnswer(container, value);
+      // appendAnswer(container, value);
     });
   }
   core.basicFetch({
@@ -128,7 +133,7 @@ function setup(): void {
     return;
   }
   const button = <HTMLElement>form.querySelector("button[value=submit]");
-  button.onclick = () => submitForm(form);
+  button.onclick = () => submitForm(form, container);
   // button.onclick = () => sendJson(JSON.stringify({ abba: "hah" }));
   const refreshButton = <HTMLButtonElement>(
     form.querySelector("button[value=refresh")

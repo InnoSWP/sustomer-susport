@@ -7,7 +7,7 @@ function form2text(form) {
     const el = form.querySelector("#question_text");
     return core.html2text(el);
 }
-function submitForm(form) {
+function submitForm(form, container) {
     const value = form2text(form);
     console.log(value);
     sendMessage({
@@ -15,10 +15,12 @@ function submitForm(form) {
         user_id: 1337,
     });
     const history = getLocalChat();
-    storeChat(addMessage(history, {
+    const newHistory = addMessage(history, {
         author: userIsAuthor,
         text: value,
-    }));
+    });
+    displayChat(newHistory, container);
+    storeChat(newHistory);
 }
 function sendMessage(msg) {
     const parameters = {
@@ -69,25 +71,29 @@ function deleteChildren(container) {
 function addChildren(container, children) {
     children.map((child) => container.appendChild(child));
 }
+function displayChat(chat, container) {
+    const chatElementsHtml = chat.map((value) => {
+        return displayMessage(value);
+    });
+    deleteChildren(container);
+    addChildren(container, chatElementsHtml);
+}
 function getUpdatesForMessages(container) {
     function onSuccess(response) {
         response.text().then((value) => {
             const data = JSON.parse(value);
-            if (data.length == 0)
+            if (data.length == 0) {
+                displayChat(getLocalChat(), container);
                 return;
+            }
             {
                 const newMessages = data.map((value) => {
                     return { author: "support", text: value };
                 });
                 const chatHistory = getLocalChat().concat(newMessages);
                 storeChat(chatHistory);
-                const chatElementsHtml = chatHistory.map((value) => {
-                    return displayMessage(value);
-                });
-                deleteChildren(container);
-                addChildren(container, chatElementsHtml);
+                displayChat(chatHistory, container);
             }
-            appendAnswer(container, value);
         });
     }
     core.basicFetch({
@@ -104,7 +110,7 @@ function setup() {
         return;
     }
     const button = form.querySelector("button[value=submit]");
-    button.onclick = () => submitForm(form);
+    button.onclick = () => submitForm(form, container);
     const refreshButton = (form.querySelector("button[value=refresh"));
     let container = document.querySelector("div#message-history");
     document.body.appendChild(container);
