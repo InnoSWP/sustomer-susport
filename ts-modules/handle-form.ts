@@ -82,7 +82,7 @@ function displayMessage(message: ChatEntry): HTMLElement {
 }
 
 function deleteChildren(container: HTMLElement) {
-  for (let i = 0; i < container.children.length; i++) {
+  for (let i = container.children.length; i > 0 ; i--) {
     container.removeChild(container.children[0]);
   }
 }
@@ -93,6 +93,7 @@ function displayChat(chat: ChatHistory, container: HTMLElement): void {
   const chatElementsHtml = chat.map((value: ChatEntry) => {
     return displayMessage(value);
   });
+	console.log(container.children.length)
   deleteChildren(container);
   addChildren(container, chatElementsHtml);
 }
