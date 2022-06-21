@@ -39,33 +39,29 @@ class FirestoreDatabase:
         doc_ref.delete()
 
     def questions(self):
-        questions_ref = self.db.collection(u'questions').document(u'keys')
-        questions_dict = questions_ref.get().to_dict()
+        questions_ref = self.db.collection(u'questions')
+        questions_list = questions_ref.get()
 
-        questions: list[QuestionEntry] = [QuestionEntry(key, questions_dict[key][0], questions_dict[key][1])
-                                          for key in questions_dict]
+        questions: list[QuestionEntry] = []
+        for q_item in questions_list:
+            q = q_item.to_dict()
+            questions.append(QuestionEntry(q['key'], q['question'], q['answer']))
 
         return questions
 
     # Returns answer if found exactly the same key
+    '''
     def get_answer(self, question_key: (str, QuestionEntry)):
-        question_ref = self.db.collection(u'questions').document(u'keys')
-        question_dic = question_ref.get().to_dict()
-
-        answer = question_dic.get(str(question_key), None)
-        if answer:
-            return answer[1]
-        else:
-            return None
+        pass
+    '''
 
     def set_question(self, question: QuestionEntry):
-        question_ref = self.db.collection(u'questions').document(u'keys')
-        question_data = {question.key: [question.question, question.answer]}
+        question_data = {'key': question.key,
+                         'question': question.question,
+                         'answer': question.answer}
+        self.db.collection(u'questions').document().set(question_data)
 
-        question_ref.update(question_data)
-
+    '''
     def delete_question(self, question: (str, QuestionEntry)):
-        question_ref = self.db.collection(u'questions').document(u'keys')
-        question_data = {str(question): firestore.DELETE_FIELD}
-
-        question_ref.update(question_data)
+        pass
+    '''
