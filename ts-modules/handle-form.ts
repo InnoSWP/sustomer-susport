@@ -25,6 +25,18 @@ interface messageRequestBody {
   user_id: number;
 }
 
+function sendGet(url: string) {
+  const request: RequestInit = {
+    method: "GET",
+    headers: { "content-type": "application/json;charset=UTF-8" },
+  };
+
+  const promise = window.fetch("/messages", request);
+  promise.then((value: Response) => {
+    console.log(value);
+  });
+  promise.catch((error) => console.log(error));
+}
 function sendData(data: string) {
   const request: RequestInit = {
     method: "POST",
@@ -42,6 +54,9 @@ function sendData(data: string) {
 function sendMessage(msg: messageRequestBody) {
   sendData(JSON.stringify(msg));
 }
+function getUpdatesForMessages() {
+  sendGet("/messages");
+}
 
 function setup(): void {
   const form = <HTMLElement | null>document.querySelector("#ask_question_form");
@@ -52,6 +67,11 @@ function setup(): void {
   const button = <HTMLElement>form.querySelector("button[value=submit]");
   button.onclick = () => submitForm(form);
   // button.onclick = () => sendJson(JSON.stringify({ abba: "hah" }));
+  let newButton = document.createElement("button");
+  newButton.type = "button";
+  newButton.textContent = "get responses";
+  newButton.onclick = getUpdatesForMessages;
+  form.appendChild(newButton);
 }
 
 setup();
