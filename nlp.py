@@ -1,6 +1,5 @@
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-from firebase.question_entry import QuestionEntry
 
 
 class absSimProvider:
@@ -9,7 +8,7 @@ class absSimProvider:
         return ''
 
     @staticmethod
-    def similarity(q1: QuestionEntry, q2: QuestionEntry) -> float:
+    def similarity(q1_key: str, q2_key: str) -> float:
         return 0
 
 
@@ -21,12 +20,11 @@ class susSimProvider(absSimProvider):
         return str(cls.model.encode(question).tolist())
 
     @staticmethod
-    def similarity(q1: QuestionEntry, q2: QuestionEntry) -> float:
-        return cosine_similarity([eval(q1.key)], [eval(q2.key)])[0][0]
+    def similarity(q1_key: str, q2_key: str) -> float:
+        return cosine_similarity([eval(q1_key)], [eval(q2_key)])[0][0]
 
 
 if __name__ == "__main__":
-    model = susSimProvider
 
     print("The model is loaded")
 
@@ -34,10 +32,10 @@ if __name__ == "__main__":
     q2 = "Human's body best muscle"
     q3 = "Why is Linus Torvalds so genius?"
 
-    qe1 = QuestionEntry(model.encode_question(q1), q1, 'jaw')
-    qe2 = QuestionEntry(model.encode_question(q2), q2, '')
-    qe3 = QuestionEntry(model.encode_question(q3), q3, '')
+    qe1 = susSimProvider.encode_question(q1)
+    qe2 = susSimProvider.encode_question(q2)
+    qe3 = susSimProvider.encode_question(q3)
 
-    print(model.similarity(qe1, qe2))
-    print(model.similarity(qe1, qe3))
-    print(model.similarity(qe2, qe3))
+    print(susSimProvider.similarity(qe1, qe2))
+    print(susSimProvider.similarity(qe1, qe3))
+    print(susSimProvider.similarity(qe2, qe3))
