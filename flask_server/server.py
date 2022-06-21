@@ -8,7 +8,7 @@ from telegram import Update
 
 
 class FlaskThread:
-    NLP_CHECK = False
+    NLP_CHECK = True
     _callbacks: list[Callable] = list()
     messages_to_proceed: list[str] = []
 
@@ -77,12 +77,13 @@ class FlaskThread:
         user_id = data.get('user_id', None)
 
         if self.NLP_CHECK:
-            base_nlp_router_url = '0.0.0.0:5001'
+            base_nlp_router_url = 'http://127.0.0.1:8000'
             similar_endpoint = '/similar'
             result_url = f'{base_nlp_router_url}{similar_endpoint}'
 
             resp = requests.get(result_url, {'question': text})
-            # TODO complete check
+            similarity_index = list(resp.json().items())[0][1]
+            return jsonify(similarity_index)
         else:
             message_to_send = f'{user_id}: {text}'
 
