@@ -25,15 +25,16 @@ interface messageRequestBody {
   user_id: number;
 }
 
-function sendGet(url: string) {
+function sendGet(url: string, onSuccess: (arg0: Response) => void) {
   const request: RequestInit = {
     method: "GET",
     headers: { "content-type": "application/json;charset=UTF-8" },
   };
 
-  const promise = window.fetch("/messages", request);
+  const promise = window.fetch(url, request);
   promise.then((value: Response) => {
-    console.log(value);
+    // console.log(value);
+    onSuccess(value);
   });
   promise.catch((error) => console.log(error));
 }
@@ -54,8 +55,19 @@ function sendData(data: string) {
 function sendMessage(msg: messageRequestBody) {
   sendData(JSON.stringify(msg));
 }
-function getUpdatesForMessages() {
-  sendGet("/messages");
+function appendAnswer(container: HTMLElement, text: string): void {
+  const div = document.createElement("div");
+  div.textContent = text;
+  container.appendChild(div);
+}
+
+function getUpdatesForMessages(container: HTMLElement) {
+  function onSuccess(response: Response): void {
+    response.text().then((value: string) => {
+      appendAnswer(container, value);
+    });
+  }
+  sendGet("/messages", onSuccess);
 }
 
 function setup(): void {
@@ -70,7 +82,9 @@ function setup(): void {
   let newButton = document.createElement("button");
   newButton.type = "button";
   newButton.textContent = "get responses";
-  newButton.onclick = getUpdatesForMessages;
+  let container = document.createElement("div");
+  document.body.appendChild(container);
+  newButton.onclick = () => getUpdatesForMessages(container);
   form.appendChild(newButton);
 }
 

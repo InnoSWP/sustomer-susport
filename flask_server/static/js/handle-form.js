@@ -16,14 +16,14 @@ function submitForm(form) {
         user_id: 1337,
     });
 }
-function sendGet(url) {
+function sendGet(url, onSuccess) {
     const request = {
         method: "GET",
         headers: { "content-type": "application/json;charset=UTF-8" },
     };
-    const promise = window.fetch("/messages", request);
+    const promise = window.fetch(url, request);
     promise.then((value) => {
-        console.log(value);
+        onSuccess(value);
     });
     promise.catch((error) => console.log(error));
 }
@@ -42,8 +42,18 @@ function sendData(data) {
 function sendMessage(msg) {
     sendData(JSON.stringify(msg));
 }
-function getUpdatesForMessages() {
-    sendGet("/messages");
+function appendAnswer(container, text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    container.appendChild(div);
+}
+function getUpdatesForMessages(container) {
+    function onSuccess(response) {
+        response.text().then((value) => {
+            appendAnswer(container, value);
+        });
+    }
+    sendGet("/messages", onSuccess);
 }
 function setup() {
     const form = document.querySelector("#ask_question_form");
@@ -56,7 +66,9 @@ function setup() {
     let newButton = document.createElement("button");
     newButton.type = "button";
     newButton.textContent = "get responses";
-    newButton.onclick = getUpdatesForMessages;
+    let container = document.createElement("div");
+    document.body.appendChild(container);
+    newButton.onclick = () => getUpdatesForMessages(container);
     form.appendChild(newButton);
 }
 setup();
