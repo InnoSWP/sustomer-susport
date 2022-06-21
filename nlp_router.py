@@ -30,7 +30,7 @@ def index():
 
 
 @app.get("/similar")
-def similar_questions(question: str, index: float = SIM_CONST):
+def similar_questions(question: str, index: float = SIMILARITY_CONST):
     """
     /similar [GET]
     :param question : question text
@@ -40,9 +40,12 @@ def similar_questions(question: str, index: float = SIM_CONST):
     question_key = susSimProvider.encode_question(question)
     top_similar = []
     for q in cached_questions:
-        cur_sim = susSimProvider.similarity(question_key, q.key)
-        if cur_sim > index:
-            top_similar.append({"question": q.question, "answer": q.answer})
+        try:
+            cur_sim = susSimProvider.similarity(question_key, q.key)
+            if cur_sim > index:
+                top_similar.append({"question": q.question, "answer": q.answer})
+        except NameError:
+            pass
 
     return top_similar
 
@@ -50,8 +53,7 @@ def similar_questions(question: str, index: float = SIM_CONST):
 @app.post("/new", status_code=201)
 def new_question(q_item: QuestionItem):
     global cached_questions, fd
-    # TODO: get key by question
-    q_key = "new_key"
+    q_key = susSimProvider.encode_question(q_item.question)
     q_entry = QuestionEntry(q_key, q_item.question, q_item.answer)
 
     fd.set_question(q_entry)
