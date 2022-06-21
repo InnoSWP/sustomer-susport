@@ -2,12 +2,13 @@ import os, dotenv
 
 from typing import Callable
 
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 from telegram import Update
 
 
 class FlaskThread:
     _callbacks: list[Callable] = list()
+    messages_to_proceed: list[str] = []
 
     def __init__(self):
         self.app = Flask(__name__)
@@ -16,6 +17,7 @@ class FlaskThread:
         self.app.add_url_rule('/', view_func=self.index)
         self.app.add_url_rule('/frame', view_func=self.frame_get, methods=['GET'])
         self.app.add_url_rule('/messages', view_func=self.messages_post, methods=['POST'])
+        self.app.add_url_rule('/messages', view_func=self.messages_get, methods=['GET'])
 
     def add_callback(self, callback: Callable):
         self._callbacks.append(callback)
@@ -24,9 +26,11 @@ class FlaskThread:
     async def flask_callback(self, update: Update, _):
         chat_id = update.effective_chat.id
 
-        send_message = self._callbacks[0]
+        msg_text = update.message.text
+        self.messages_to_proceed.append(msg_text)
 
-        await send_message(chat_id, update.message.text + '123')
+        send_message = self._callbacks[0]
+        await send_message(chat_id, 'Your msg recieved')
 
     def run(self):
         return self.app.run()
@@ -44,6 +48,16 @@ class FlaskThread:
         /frame, [GET]
         """
         return render_template('form.html')
+
+    def messages_get(self):
+        """
+        /messages [GET]
+        """
+
+        result = jsonify(self.messages_to_proceed)
+        self.messages_to_proceed = []
+
+        return result
 
     async def messages_post(self):
         """
