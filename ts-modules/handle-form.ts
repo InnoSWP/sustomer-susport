@@ -65,13 +65,12 @@ function setup(): void {
   const button = <HTMLElement>form.querySelector("button[value=submit]");
   button.onclick = () => submitForm(form);
   // button.onclick = () => sendJson(JSON.stringify({ abba: "hah" }));
-  let newButton = document.createElement("button");
-  newButton.type = "button";
-  newButton.textContent = "get responses";
-  let container = document.createElement("div");
+  const refreshButton = <HTMLButtonElement>(
+    form.querySelector("button[value=refresh")
+  );
+  let container = <HTMLElement>document.querySelector("div#message-history");
   document.body.appendChild(container);
-  newButton.onclick = () => getUpdatesForMessages(container);
-  form.appendChild(newButton);
+  refreshButton.onclick = () => getUpdatesForMessages(container);
 }
 
 setup();

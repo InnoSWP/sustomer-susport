@@ -23,7 +23,6 @@ function sendMessage(msg) {
         request: Object.assign(Object.assign({}, core.defaultRequest), { method: "POST", body: JSON.stringify(msg) }),
     };
     core.basicFetch(parameters);
-    console.log("undefined");
 }
 function appendAnswer(container, text) {
     const div = document.createElement("div");
@@ -54,13 +53,10 @@ function setup() {
     }
     const button = form.querySelector("button[value=submit]");
     button.onclick = () => submitForm(form);
-    let newButton = document.createElement("button");
-    newButton.type = "button";
-    newButton.textContent = "get responses";
-    let container = document.createElement("div");
+    const refreshButton = (form.querySelector("button[value=refresh"));
+    let container = document.querySelector("div#message-history");
     document.body.appendChild(container);
-    newButton.onclick = () => getUpdatesForMessages(container);
-    form.appendChild(newButton);
+    refreshButton.onclick = () => getUpdatesForMessages(container);
 }
 setup();
 //# sourceMappingURL=handle-form.js.map
