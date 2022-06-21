@@ -9,7 +9,6 @@ function form2text(form) {
 }
 function submitForm(form, container) {
     const value = form2text(form);
-    console.log(value);
     sendMessage({
         text: value,
         user_id: 1337,
@@ -75,7 +74,6 @@ function displayChat(chat, container) {
     const chatElementsHtml = chat.map((value) => {
         return displayMessage(value);
     });
-    console.log(container.children.length);
     deleteChildren(container);
     addChildren(container, chatElementsHtml);
 }
