@@ -16,6 +16,13 @@ function submitForm(form: HTMLElement): void {
     text: value,
     user_id: 1337,
   });
+  const history = getLocalChat();
+  storeChat(
+    addMessage(history, {
+      author: userIsAuthor,
+      text: value,
+    })
+  );
 }
 
 function sendMessage(msg: core.MessageRequestBody) {
@@ -41,9 +48,68 @@ function appendAnswer(container: HTMLElement, text: string): void {
   container.appendChild(div);
 }
 
+interface ChatEntry {
+  author: string;
+  text: string;
+}
+type ChatHistory = ChatEntry[];
+
+function getLocalChat(): ChatHistory {
+  const chat = window.localStorage.getItem("ChatHistory");
+  if (chat == null) return [];
+  return JSON.parse(chat);
+}
+
+function storeChat(chat: ChatHistory) {
+  window.localStorage.setItem("ChatHistory", JSON.stringify(chat));
+}
+
+function addMessage(chat: ChatHistory, message: ChatEntry): ChatHistory {
+  chat.push(message);
+  return chat;
+}
+const userIsAuthor: string = " ";
+
+function displayMessage(message: ChatEntry): HTMLElement {
+  const messageContainer = document.createElement("div");
+  if (message.author == userIsAuthor) {
+    messageContainer.setAttribute("class", "user-message");
+  } else {
+    messageContainer.setAttribute("class", "others-message");
+  }
+  messageContainer.textContent = message.text;
+  return messageContainer;
+}
+
+function deleteChildren(container: HTMLElement) {
+  for (let i = 0; i < container.children.length; i++) {
+    container.removeChild(container.children[0]);
+  }
+}
+function addChildren(container: HTMLElement, children: HTMLElement[]) {
+  children.map((child) => container.appendChild(child));
+}
+
 function getUpdatesForMessages(container: HTMLElement) {
   function onSuccess(response: Response): void {
     response.text().then((value: string) => {
+      const data: string[] = JSON.parse(value);
+      if (data.length == 0) return;
+
+      {
+        const newMessages = data.map((value) => {
+          return { author: "support", text: value };
+        });
+        const chatHistory = getLocalChat().concat(newMessages);
+        storeChat(chatHistory);
+
+        const chatElementsHtml = chatHistory.map((value: ChatEntry) => {
+          return displayMessage(value);
+        });
+        deleteChildren(container);
+        addChildren(container, chatElementsHtml);
+      }
+
       appendAnswer(container, value);
     });
   }
@@ -51,7 +117,7 @@ function getUpdatesForMessages(container: HTMLElement) {
     url: "/messages",
     onSuccess: onSuccess,
     onError: requestFailure,
-		request: core.defaultRequest,
+    request: core.defaultRequest,
   });
 }
 

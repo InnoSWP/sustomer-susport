@@ -14,6 +14,11 @@ function submitForm(form) {
         text: value,
         user_id: 1337,
     });
+    const history = getLocalChat();
+    storeChat(addMessage(history, {
+        author: userIsAuthor,
+        text: value,
+    }));
 }
 function sendMessage(msg) {
     const parameters = {
@@ -31,9 +36,57 @@ function appendAnswer(container, text) {
     div.textContent = text;
     container.appendChild(div);
 }
+function getLocalChat() {
+    const chat = window.localStorage.getItem("ChatHistory");
+    if (chat == null)
+        return [];
+    return JSON.parse(chat);
+}
+function storeChat(chat) {
+    window.localStorage.setItem("ChatHistory", JSON.stringify(chat));
+}
+function addMessage(chat, message) {
+    chat.push(message);
+    return chat;
+}
+const userIsAuthor = " ";
+function displayMessage(message) {
+    const messageContainer = document.createElement("div");
+    if (message.author == userIsAuthor) {
+        messageContainer.setAttribute("class", "user-message");
+    }
+    else {
+        messageContainer.setAttribute("class", "others-message");
+    }
+    messageContainer.textContent = message.text;
+    return messageContainer;
+}
+function deleteChildren(container) {
+    for (let i = 0; i < container.children.length; i++) {
+        container.removeChild(container.children[0]);
+    }
+}
+function addChildren(container, children) {
+    children.map((child) => container.appendChild(child));
+}
 function getUpdatesForMessages(container) {
     function onSuccess(response) {
         response.text().then((value) => {
+            const data = JSON.parse(value);
+            if (data.length == 0)
+                return;
+            {
+                const newMessages = data.map((value) => {
+                    return { author: "support", text: value };
+                });
+                const chatHistory = getLocalChat().concat(newMessages);
+                storeChat(chatHistory);
+                const chatElementsHtml = chatHistory.map((value) => {
+                    return displayMessage(value);
+                });
+                deleteChildren(container);
+                addChildren(container, chatElementsHtml);
+            }
             appendAnswer(container, value);
         });
     }
