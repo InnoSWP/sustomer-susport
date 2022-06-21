@@ -30,7 +30,12 @@ def index():
 
 
 @app.get("/similar")
-def similar_questions(question: str, index: float = SIMILARITY_CONST):
+def similar_questions(question: str, index: float = SIM_CONST):
+    """
+    /similar [GET]
+    :param question : question text
+    :param index : similarity threshold
+    """
     global cached_questions
     question_key = susSimProvider.encode_question(question)
     top_similar = []
@@ -45,7 +50,8 @@ def similar_questions(question: str, index: float = SIMILARITY_CONST):
 @app.post("/new", status_code=201)
 def new_question(q_item: QuestionItem):
     global cached_questions, fd
-    q_key = susSimProvider.encode_question(q_item.question)
+    # TODO: get key by question
+    q_key = "new_key"
     q_entry = QuestionEntry(q_key, q_item.question, q_item.answer)
 
     fd.set_question(q_entry)

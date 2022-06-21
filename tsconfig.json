@@ -10,7 +10,7 @@
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
     "skipLibCheck": true,
-    "module": "commonjs",
+    "module": "ES6",
     "target": "es2015",
     "types": [],
     "lib": ["dom", "es5", "scripthost", "es2015"]
