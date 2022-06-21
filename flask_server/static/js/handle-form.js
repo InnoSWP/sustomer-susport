@@ -1,4 +1,8 @@
 import * as core from "./core.js";
+function requestFailure(error) {
+    console.log("Error during request performing");
+    console.log(error);
+}
 function form2text(form) {
     const el = form.querySelector("#question_text");
     return core.html2text(el);
@@ -17,9 +21,7 @@ function sendMessage(msg) {
         onSuccess: function (value) {
             console.log(value.ok);
         },
-        onError: function (arg0) {
-            throw new Error("Function not implemented.");
-        },
+        onError: requestFailure,
         request: Object.assign(Object.assign({}, core.defaultRequest), { method: "POST", body: JSON.stringify(msg) }),
     };
     core.basicFetch(parameters);
@@ -38,10 +40,7 @@ function getUpdatesForMessages(container) {
     core.basicFetch({
         url: "/messages",
         onSuccess: onSuccess,
-        onError: function (arg0) {
-            console.log("Error while request fetching");
-            console.log(arg0);
-        },
+        onError: requestFailure,
         request: core.defaultRequest,
     });
 }

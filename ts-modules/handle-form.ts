@@ -1,5 +1,9 @@
 import * as core from "./core.js";
 
+function requestFailure(error: any): void {
+  console.log("Error during request performing");
+  console.log(error);
+}
 function form2text(form: HTMLElement): string {
   const el = form.querySelector("#question_text") as HTMLInputElement;
   return core.html2text(el);
@@ -21,9 +25,7 @@ function sendMessage(msg: core.MessageRequestBody) {
       // throw new Error("Function not implemented.");
       console.log(value.ok);
     },
-    onError: function (arg0: any): void {
-      throw new Error("Function not implemented.");
-    },
+    onError: requestFailure,
     request: {
       ...core.defaultRequest,
       method: "POST",
@@ -48,11 +50,8 @@ function getUpdatesForMessages(container: HTMLElement) {
   core.basicFetch({
     url: "/messages",
     onSuccess: onSuccess,
-    onError: function (arg0: any): void {
-      console.log("Error while request fetching");
-      console.log(arg0);
-    },
-    request: core.defaultRequest,
+    onError: requestFailure,
+		request: core.defaultRequest,
   });
 }
 
