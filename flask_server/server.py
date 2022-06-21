@@ -1,4 +1,5 @@
-import os, dotenv
+import os
+import dotenv
 
 from typing import Callable
 
@@ -17,9 +18,12 @@ class FlaskThread:
         self.app.config['SECRET_KEY'] = os.urandom(12)
 
         self.app.add_url_rule('/', view_func=self.index)
-        self.app.add_url_rule('/frame', view_func=self.frame_get, methods=['GET'])
-        self.app.add_url_rule('/messages', view_func=self.messages_post, methods=['POST'])
-        self.app.add_url_rule('/messages', view_func=self.messages_get, methods=['GET'])
+        self.app.add_url_rule(
+            '/frame', view_func=self.frame_get, methods=['GET'])
+        self.app.add_url_rule(
+            '/messages', view_func=self.messages_post, methods=['POST'])
+        self.app.add_url_rule(
+            '/messages', view_func=self.messages_get, methods=['GET'])
 
     def add_callback(self, callback: Callable):
         self._callbacks.append(callback)
@@ -61,6 +65,15 @@ class FlaskThread:
 
         return result
 
+    async def send_to_tg(self, user_id, text):
+            message_to_send = f'{user_id}: {text}'
+
+            send_message = self._callbacks[0]
+
+            chat_id = dotenv.dotenv_values('flask_server/.env')['TEST_CHAT_ID']
+            await send_message(chat_id, message_to_send)
+            # await send_message(325805942, message_to_send)
+
     async def messages_post(self):
         """
         /messages [POST]
@@ -82,15 +95,17 @@ class FlaskThread:
             result_url = f'{base_nlp_router_url}{similar_endpoint}'
 
             resp = requests.get(result_url, {'question': text})
-            similarity_index = list(resp.json().items())[0][1]
-            return jsonify(similarity_index)
+            print(">>>" * 5)
+            print(resp.url)
+            print("<<<" * 5)
+            # similarity_index = list(resp.json().items())[0][1]
+            # similarity_index = resp.json()
+
+            # return jsonify(similarity_index)
+            if len(resp.json() ) == 0:
+                await self.send_to_tg(user_id, text)
+            else:
+                return jsonify(resp.json())
         else:
-            message_to_send = f'{user_id}: {text}'
-
-            send_message = self._callbacks[0]
-
-            chat_id = dotenv.dotenv_values('flask_server/.env')['TEST_CHAT_ID']
-            await send_message(chat_id, message_to_send)
-            # await send_message(325805942, message_to_send)
-
+            await self.send_to_tg(user_id, text)
         return 'niceee'
