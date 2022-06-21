@@ -1,14 +1,8 @@
-function html2text(htmlElement: HTMLInputElement | null): string {
-  // if (htmlElement == null || htmlElement.textContent == undefined)
-  if (htmlElement == null) {
-    return "";
-  }
-  return htmlElement.value;
-}
+import * as core from "./core.js";
 
 function form2text(form: HTMLElement): string {
   const el = form.querySelector("#question_text") as HTMLInputElement;
-  return html2text(el);
+  return core.html2text(el);
 }
 
 function submitForm(form: HTMLElement): void {
@@ -20,41 +14,25 @@ function submitForm(form: HTMLElement): void {
   });
 }
 
-interface messageRequestBody {
-  text: string;
-  user_id: number;
-}
-
-function sendGet(url: string, onSuccess: (arg0: Response) => void) {
-  const request: RequestInit = {
-    method: "GET",
-    headers: { "content-type": "application/json;charset=UTF-8" },
+function sendMessage(msg: core.MessageRequestBody) {
+  const parameters: core.FetchParameters = {
+    url: "/messages",
+    onSuccess: function (value: Response): void {
+      // throw new Error("Function not implemented.");
+      console.log(value.ok);
+    },
+    onError: function (arg0: any): void {
+      throw new Error("Function not implemented.");
+    },
+    request: {
+      ...core.defaultRequest,
+      method: "POST",
+      body: JSON.stringify(msg),
+    },
   };
-
-  const promise = window.fetch(url, request);
-  promise.then((value: Response) => {
-    // console.log(value);
-    onSuccess(value);
-  });
-  promise.catch((error) => console.log(error));
-}
-function sendData(data: string) {
-  const request: RequestInit = {
-    method: "POST",
-    headers: { "content-type": "application/json;charset=UTF-8" },
-    body: data,
-  };
-
-  const promise = window.fetch("/messages", request);
-  promise.then((value: Response) => {
-    console.log(value.ok);
-  });
-  promise.catch((error) => console.log(error));
+  core.basicFetch(parameters);
 }
 
-function sendMessage(msg: messageRequestBody) {
-  sendData(JSON.stringify(msg));
-}
 function appendAnswer(container: HTMLElement, text: string): void {
   const div = document.createElement("div");
   div.textContent = text;
@@ -67,7 +45,15 @@ function getUpdatesForMessages(container: HTMLElement) {
       appendAnswer(container, value);
     });
   }
-  sendGet("/messages", onSuccess);
+  core.basicFetch({
+    url: "/messages",
+    onSuccess: onSuccess,
+    onError: function (arg0: any): void {
+      console.log("Error while request fetching");
+      console.log(arg0);
+    },
+    request: core.defaultRequest,
+  });
 }
 
 function setup(): void {
