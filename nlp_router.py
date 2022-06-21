@@ -1,7 +1,7 @@
 import uvicorn
 from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND
-from firestore_database import FirestoreDatabase
-from question_entry import QuestionEntry
+from firebase.firestore_database import FirestoreDatabase
+from firebase.question_entry import QuestionEntry
 from fastapi import FastAPI, Response
 from pydantic import BaseModel
 
@@ -29,6 +29,11 @@ def index():
 
 @app.get("/similar")
 def similar_questions(question: str, index: float = SIM_CONST):
+    """
+    /similar [GET]
+    :param question : question text
+    :param index : similarity threshold
+    """
     global cached_questions
     # TODO: search for similar question
     for q in cached_questions:
