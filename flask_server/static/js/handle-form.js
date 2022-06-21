@@ -1,12 +1,7 @@
-function html2text(htmlElement) {
-    if (htmlElement == null) {
-        return "";
-    }
-    return htmlElement.value;
-}
+import * as core from "./core.js";
 function form2text(form) {
     const el = form.querySelector("#question_text");
-    return html2text(el);
+    return core.html2text(el);
 }
 function submitForm(form) {
     const value = form2text(form);
@@ -16,31 +11,19 @@ function submitForm(form) {
         user_id: 1337,
     });
 }
-function sendGet(url, onSuccess) {
-    const request = {
-        method: "GET",
-        headers: { "content-type": "application/json;charset=UTF-8" },
-    };
-    const promise = window.fetch(url, request);
-    promise.then((value) => {
-        onSuccess(value);
-    });
-    promise.catch((error) => console.log(error));
-}
-function sendData(data) {
-    const request = {
-        method: "POST",
-        headers: { "content-type": "application/json;charset=UTF-8" },
-        body: data,
-    };
-    const promise = window.fetch("/messages", request);
-    promise.then((value) => {
-        console.log(value.ok);
-    });
-    promise.catch((error) => console.log(error));
-}
 function sendMessage(msg) {
-    sendData(JSON.stringify(msg));
+    const parameters = {
+        url: "/messages",
+        onSuccess: function (value) {
+            console.log(value.ok);
+        },
+        onError: function (arg0) {
+            throw new Error("Function not implemented.");
+        },
+        request: Object.assign(Object.assign({}, core.defaultRequest), { method: "POST", body: JSON.stringify(msg) }),
+    };
+    core.basicFetch(parameters);
+    console.log("undefined");
 }
 function appendAnswer(container, text) {
     const div = document.createElement("div");
@@ -53,7 +36,15 @@ function getUpdatesForMessages(container) {
             appendAnswer(container, value);
         });
     }
-    sendGet("/messages", onSuccess);
+    core.basicFetch({
+        url: "/messages",
+        onSuccess: onSuccess,
+        onError: function (arg0) {
+            console.log("Error while request fetching");
+            console.log(arg0);
+        },
+        request: core.defaultRequest,
+    });
 }
 function setup() {
     const form = document.querySelector("#ask_question_form");
