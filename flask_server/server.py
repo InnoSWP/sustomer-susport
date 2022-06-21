@@ -2,11 +2,13 @@ import os, dotenv
 
 from typing import Callable
 
+import requests
 from flask import Flask, request, render_template, jsonify
 from telegram import Update
 
 
 class FlaskThread:
+    NLP_CHECK = True
     _callbacks: list[Callable] = list()
     messages_to_proceed: list[str] = []
 
@@ -74,12 +76,21 @@ class FlaskThread:
         text = data.get('text', None)
         user_id = data.get('user_id', None)
 
-        message_to_send = f'{user_id}: {text}'
+        if self.NLP_CHECK:
+            base_nlp_router_url = 'http://127.0.0.1:8000'
+            similar_endpoint = '/similar'
+            result_url = f'{base_nlp_router_url}{similar_endpoint}'
 
-        send_message = self._callbacks[0]
+            resp = requests.get(result_url, {'question': text})
+            similarity_index = list(resp.json().items())[0][1]
+            return jsonify(similarity_index)
+        else:
+            message_to_send = f'{user_id}: {text}'
 
-        chat_id = dotenv.dotenv_values('flask_server/.env')['TEST_CHAT_ID']
-        await send_message(chat_id, message_to_send)
-        # await send_message(325805942, message_to_send)
+            send_message = self._callbacks[0]
+
+            chat_id = dotenv.dotenv_values('flask_server/.env')['TEST_CHAT_ID']
+            await send_message(chat_id, message_to_send)
+            # await send_message(325805942, message_to_send)
 
         return 'niceee'
