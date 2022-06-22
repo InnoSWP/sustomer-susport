@@ -9,27 +9,58 @@ function form2text(form: HTMLElement): string {
   return core.html2text(el);
 }
 
-function submitForm(form: HTMLElement, container: HTMLElement): void {
-  const value: string = form2text(form);
-  sendMessage({
-    text: value,
-    user_id: 1337,
-  });
+function updateChatComposition(
+  message: ChatEntry,
+  container: HTMLElement
+): void {
   const history = getLocalChat();
-  const newHistory = addMessage(history, {
-    author: userIsAuthor,
-    text: value,
-  });
+  const newHistory = addMessage(history, message);
   displayChat(newHistory, container);
   storeChat(newHistory);
 }
 
-function sendMessage(msg: core.MessageRequestBody) {
+function submitForm(form: HTMLElement, container: HTMLElement): void {
+  const value: string = form2text(form);
+  sendMessage(
+    {
+      text: value,
+      user_id: 1337,
+    },
+    (text: string) => {
+      const body: Array<{answer: string, question: string}> = JSON.parse(text);
+      body.map((similarQuestion) => {
+        return updateChatComposition(
+          {
+            author: similarQuestionLabel,
+            text: `${similarQuestion.question}   ?=>  ${similarQuestion.answer}`,
+          },
+          container
+        );
+      });
+    }
+  );
+  updateChatComposition(
+    {
+      author: userIsAuthor,
+      text: value,
+    },
+    container
+  );
+}
+
+function sendMessage(
+  msg: core.MessageRequestBody,
+  handleSimilarQuestions: (text: string) => void
+) {
   const parameters: core.FetchParameters = {
     url: "/messages",
     onSuccess: function (value: Response): void {
       // throw new Error("Function not implemented.");
-      console.log(value.ok);
+      value.text().then((text) => {
+        if (value.ok) {
+          handleSimilarQuestions(text);
+        }
+      });
     },
     onError: requestFailure,
     request: {
@@ -68,20 +99,29 @@ function addMessage(chat: ChatHistory, message: ChatEntry): ChatHistory {
   return chat;
 }
 const userIsAuthor: string = " ";
+const similarQuestionLabel : string = "similar-question"
 
 function displayMessage(message: ChatEntry): HTMLElement {
   const messageContainer = document.createElement("div");
+  switch (message.author) {
+    case userIsAuthor:
+      messageContainer.setAttribute("class", "user-message");
+      break;
+    case similarQuestionLabel:
+      messageContainer.setAttribute("class", "similar-question");
+      break;
+    default:
+      messageContainer.setAttribute("class", "others-message");
+  }
   if (message.author == userIsAuthor) {
-    messageContainer.setAttribute("class", "user-message");
   } else {
-    messageContainer.setAttribute("class", "others-message");
   }
   messageContainer.textContent = message.text;
   return messageContainer;
 }
 
 function deleteChildren(container: HTMLElement) {
-  for (let i = container.children.length; i > 0 ; i--) {
+  for (let i = container.children.length; i > 0; i--) {
     container.removeChild(container.children[0]);
   }
 }

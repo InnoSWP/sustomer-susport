@@ -7,25 +7,40 @@ function form2text(form) {
     const el = form.querySelector("#question_text");
     return core.html2text(el);
 }
+function updateChatComposition(message, container) {
+    const history = getLocalChat();
+    const newHistory = addMessage(history, message);
+    displayChat(newHistory, container);
+    storeChat(newHistory);
+}
 function submitForm(form, container) {
     const value = form2text(form);
     sendMessage({
         text: value,
         user_id: 1337,
+    }, (text) => {
+        const body = JSON.parse(text);
+        body.map((similarQuestion) => {
+            return updateChatComposition({
+                author: similarQuestionLabel,
+                text: `${similarQuestion.question}   ?=>  ${similarQuestion.answer}`,
+            }, container);
+        });
     });
-    const history = getLocalChat();
-    const newHistory = addMessage(history, {
+    updateChatComposition({
         author: userIsAuthor,
         text: value,
-    });
-    displayChat(newHistory, container);
-    storeChat(newHistory);
+    }, container);
 }
-function sendMessage(msg) {
+function sendMessage(msg, handleSimilarQuestions) {
     const parameters = {
         url: "/messages",
         onSuccess: function (value) {
-            console.log(value.ok);
+            value.text().then((text) => {
+                if (value.ok) {
+                    handleSimilarQuestions(text);
+                }
+            });
         },
         onError: requestFailure,
         request: Object.assign(Object.assign({}, core.defaultRequest), { method: "POST", body: JSON.stringify(msg) }),
@@ -51,13 +66,22 @@ function addMessage(chat, message) {
     return chat;
 }
 const userIsAuthor = " ";
+const similarQuestionLabel = "similar-question";
 function displayMessage(message) {
     const messageContainer = document.createElement("div");
+    switch (message.author) {
+        case userIsAuthor:
+            messageContainer.setAttribute("class", "user-message");
+            break;
+        case similarQuestionLabel:
+            messageContainer.setAttribute("class", "similar-question");
+            break;
+        default:
+            messageContainer.setAttribute("class", "others-message");
+    }
     if (message.author == userIsAuthor) {
-        messageContainer.setAttribute("class", "user-message");
     }
     else {
-        messageContainer.setAttribute("class", "others-message");
     }
     messageContainer.textContent = message.text;
     return messageContainer;
