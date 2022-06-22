@@ -66,13 +66,12 @@ class FlaskThread:
         return result
 
     async def send_to_tg(self, user_id, text):
-            message_to_send = f'{user_id}: {text}'
+        message_to_send = f'{user_id}: {text}'
 
-            send_message = self._callbacks[0]
+        send_message = self._callbacks[0]
 
-            chat_id = dotenv.dotenv_values('flask_server/.env')['TEST_CHAT_ID']
-            await send_message(chat_id, message_to_send)
-            # await send_message(325805942, message_to_send)
+        chat_id = dotenv.dotenv_values('flask_server/.env')['TEST_CHAT_ID']
+        await send_message(chat_id, message_to_send)
 
     async def messages_post(self):
         """
@@ -98,14 +97,10 @@ class FlaskThread:
             print(">>>" * 5)
             print(resp.url)
             print("<<<" * 5)
-            # similarity_index = list(resp.json().items())[0][1]
-            # similarity_index = resp.json()
 
-            # return jsonify(similarity_index)
-            if len(resp.json() ) == 0:
-                await self.send_to_tg(user_id, text)
-            else:
+            if len(resp.json()) != 0:
                 return jsonify(resp.json())
-        else:
-            await self.send_to_tg(user_id, text)
+
+        await self.send_to_tg(user_id, text)
+
         return 'niceee'
