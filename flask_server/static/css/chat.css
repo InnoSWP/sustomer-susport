@@ -1,7 +1,12 @@
 .user-message{
 	color: green;
 }
+.similar-question{
+	color: cyan;
+	text-align: right;
+}
 
 .others-message{
 	color: coral;
+	text-align: right;
 }
