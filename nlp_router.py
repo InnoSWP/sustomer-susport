@@ -43,7 +43,7 @@ def similar_questions(question: str, index: float = SIMILARITY_CONST):
         try:
             cur_sim = susSimProvider.similarity(question_key, q.key)
             if cur_sim > index:
-                top_similar.append({"question": q.question, "answer": q.answer})
+                top_similar.append({"question": q.question, "answer": q.answer, "index": cur_sim})
         except NameError:
             pass
 
