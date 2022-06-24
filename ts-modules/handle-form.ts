@@ -175,7 +175,7 @@ function setup(): void {
   button.onclick = () => submitForm(form, container);
   // button.onclick = () => sendJson(JSON.stringify({ abba: "hah" }));
   const refreshButton = <HTMLButtonElement>(
-    form.querySelector("button[value=refresh")
+    form.querySelector("button[value=refresh]")
   );
   let container = <HTMLElement>document.querySelector("div#message-history");
   document.body.appendChild(container);

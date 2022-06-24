@@ -5,7 +5,7 @@ from firebase.question_entry import QuestionEntry
 from fastapi import FastAPI, Response
 from pydantic import BaseModel
 
-from nlp import susSimProvider
+from nlp import sus_sim_provider
 
 SIMILARITY_CONST = 0.75
 app = FastAPI()
@@ -37,11 +37,11 @@ def similar_questions(question: str, index: float = SIMILARITY_CONST):
     :param index : similarity threshold
     """
     global cached_questions
-    question_key = susSimProvider.encode_question(question)
+    question_key = sus_sim_provider.encode_question(question)
     top_similar = []
     for q in cached_questions:
         try:
-            cur_sim = susSimProvider.similarity(question_key, q.key)
+            cur_sim = sus_sim_provider.similarity(question_key, q.key)
             if cur_sim > index:
                 top_similar.append({"question": q.question, "answer": q.answer, "index": cur_sim})
         except NameError:
@@ -53,7 +53,7 @@ def similar_questions(question: str, index: float = SIMILARITY_CONST):
 @app.post("/new", status_code=201)
 def new_question(q_item: QuestionItem):
     global cached_questions, fd
-    q_key = susSimProvider.encode_question(q_item.question)
+    q_key = sus_sim_provider.encode_question(q_item.question)
     q_entry = QuestionEntry(q_key, q_item.question, q_item.answer)
 
     fd.set_question(q_entry)

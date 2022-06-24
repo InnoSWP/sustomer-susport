@@ -2,7 +2,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
-class absSimProvider:
+class abs_sim_provider:
     @classmethod
     def encode_question(cls, question: str) -> str:
         return ''
@@ -12,7 +12,7 @@ class absSimProvider:
         return 0
 
 
-class susSimProvider(absSimProvider):
+class sus_sim_provider(abs_sim_provider):
     model = SentenceTransformer('bert-base-nli-mean-tokens')
 
     @classmethod
@@ -32,10 +32,10 @@ if __name__ == "__main__":
     q2 = "Human's body best muscle"
     q3 = "Why is Linus Torvalds so genius?"
 
-    qe1 = susSimProvider.encode_question(q1)
-    qe2 = susSimProvider.encode_question(q2)
-    qe3 = susSimProvider.encode_question(q3)
+    qe1 = sus_sim_provider.encode_question(q1)
+    qe2 = sus_sim_provider.encode_question(q2)
+    qe3 = sus_sim_provider.encode_question(q3)
 
-    print(susSimProvider.similarity(qe1, qe2))
-    print(susSimProvider.similarity(qe1, qe3))
-    print(susSimProvider.similarity(qe2, qe3))
+    print(sus_sim_provider.similarity(qe1, qe2))
+    print(sus_sim_provider.similarity(qe1, qe3))
+    print(sus_sim_provider.similarity(qe2, qe3))
