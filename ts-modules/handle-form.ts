@@ -27,7 +27,8 @@ function submitForm(form: HTMLElement, container: HTMLElement): void {
       user_id: 1337,
     },
     (text: string) => {
-      const body: Array<{answer: string, question: string}> = JSON.parse(text);
+      const body: Array<{ answer: string; question: string }> =
+        JSON.parse(text);
       body.forEach((similarQuestion) => {
         return updateChatComposition(
           {
@@ -55,7 +56,6 @@ function sendMessage(
   const parameters: core.FetchParameters = {
     url: "/messages",
     onSuccess: function (value: Response): void {
-      // throw new Error("Function not implemented.");
       value.text().then((text) => {
         if (value.ok) {
           handleSimilarQuestions(text);
@@ -99,7 +99,7 @@ function addMessage(chat: ChatHistory, message: ChatEntry): ChatHistory {
   return chat;
 }
 const userIsAuthor: string = " ";
-const similarQuestionLabel : string = "similar-question"
+const similarQuestionLabel: string = "similar-question";
 
 function displayMessage(message: ChatEntry): HTMLElement {
   const messageContainer = document.createElement("div");
@@ -142,16 +142,12 @@ function getUpdatesForMessages(container: HTMLElement) {
         return;
       }
 
-      {
-        const newMessages = data.map((value) => {
-          return { author: "support", text: value };
-        });
-        const chatHistory = getLocalChat().concat(newMessages);
-        storeChat(chatHistory);
-        displayChat(chatHistory, container);
-      }
-
-      // appendAnswer(container, value);
+      const newMessages = data.map((text) => {
+        return { author: "support", text: text };
+      });
+      const chatHistory = getLocalChat().concat(newMessages);
+      storeChat(chatHistory);
+      displayChat(chatHistory, container);
     });
   }
   core.basicFetch({
@@ -163,14 +159,13 @@ function getUpdatesForMessages(container: HTMLElement) {
 }
 
 function setup(): void {
-  const form = <HTMLElement | null>document.querySelector("#ask_question_form");
+  const form = document.querySelector("#ask_question_form");
   if (form == null) {
     alert("form not found");
     return;
   }
   const button = <HTMLElement>form.querySelector("button[value=submit]");
-  button.onclick = () => submitForm(form, container);
-  // button.onclick = () => sendJson(JSON.stringify({ abba: "hah" }));
+  button.onclick = () => submitForm(<HTMLElement>form, container);
   const refreshButton = <HTMLButtonElement>(
     form.querySelector("button[value=refresh]")
   );

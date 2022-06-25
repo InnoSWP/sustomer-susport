@@ -105,14 +105,12 @@ function getUpdatesForMessages(container) {
                 displayChat(getLocalChat(), container);
                 return;
             }
-            {
-                const newMessages = data.map((value) => {
-                    return { author: "support", text: value };
-                });
-                const chatHistory = getLocalChat().concat(newMessages);
-                storeChat(chatHistory);
-                displayChat(chatHistory, container);
-            }
+            const newMessages = data.map((text) => {
+                return { author: "support", text: text };
+            });
+            const chatHistory = getLocalChat().concat(newMessages);
+            storeChat(chatHistory);
+            displayChat(chatHistory, container);
         });
     }
     core.basicFetch({
