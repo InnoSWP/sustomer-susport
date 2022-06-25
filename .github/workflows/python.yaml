@@ -29,6 +29,6 @@ jobs:
           flake8 . --exclude .venv --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Testing with Pytest
         env:
-          firebase_key: ${{ secrets.SECRET_KEY_TEST }}
+          firebase_key: ${{ secrets.FIREBASE_KEY }}
         run: |
           pytest
