@@ -9,7 +9,7 @@ jobs:
         with:
           node-version: '14'
       - run: npm install -g typescript
-      - run: rm ./flask_server/static/js/
+      - run: rm -r ./flask_server/static/js/
       - run: tsc 
       
 
