@@ -3,10 +3,22 @@ from firebase_admin import credentials, firestore
 
 from firebase.question_entry import QuestionEntry
 from firebase.team_entry import TeamEntry
+from json import loads
+from os import environ
+
+
+def get_fd():
+    firebase_key_str = environ.get('firebase_key', 'default_value')
+    firebase_key = loads(firebase_key_str)
+    return FirestoreDatabase(firebase_key)
 
 
 class FirestoreDatabase:
-    def __init__(self, key: str):
+    def __init__(self, key: str = None):
+        if not key:
+            key_str = environ.get('firebase_key', 'default_value')
+            key = loads(key_str)
+
         cred = credentials.Certificate(key)
         firebase_admin.initialize_app(cred)
         self.db = firestore.client()
