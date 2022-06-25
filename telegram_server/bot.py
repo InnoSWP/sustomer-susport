@@ -3,11 +3,9 @@ from typing import Callable
 import dotenv
 from telegram.ext import Application, MessageHandler, filters
 
-from .utils import call_decorator
-
 
 class BotThread:
-    isAlive: bool = True
+    is_alive: bool = True
     _callbacks: list[Callable] = list()
 
     def __init__(self) -> None:
