@@ -6,8 +6,8 @@ from firebase.team_entry import TeamEntry
 
 
 class FirestoreDatabase:
-    def __init__(self, path_to_key: str):
-        cred = credentials.Certificate(path_to_key)
+    def __init__(self, key: str):
+        cred = credentials.Certificate('sustomer-susport-private-key.json')
         firebase_admin.initialize_app(cred)
         self.db = firestore.client()
 
@@ -65,3 +65,8 @@ class FirestoreDatabase:
     def delete_question(self, question: (str, QuestionEntry)):
         pass
     '''
+
+
+fd = FirestoreDatabase('')
+for q in fd.questions():
+    print(f'{q.question}')

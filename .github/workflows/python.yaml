@@ -28,5 +28,7 @@ jobs:
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --exclude .venv --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Testing with Pytest
+        env:
+          firebase_key: ${{ secrets.SECRET_KEY_TEST }}
         run: |
-          pytest
+          pytest --firebase_key firebase_key
