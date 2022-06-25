@@ -65,8 +65,3 @@ class FirestoreDatabase:
     def delete_question(self, question: (str, QuestionEntry)):
         pass
     '''
-
-
-fd = FirestoreDatabase('')
-for q in fd.questions():
-    print(f'{q.question}')
