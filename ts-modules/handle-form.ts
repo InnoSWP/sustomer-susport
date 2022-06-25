@@ -28,7 +28,7 @@ function submitForm(form: HTMLElement, container: HTMLElement): void {
     },
     (text: string) => {
       const body: Array<{answer: string, question: string}> = JSON.parse(text);
-      body.map((similarQuestion) => {
+      body.forEach((similarQuestion) => {
         return updateChatComposition(
           {
             author: similarQuestionLabel,
@@ -113,9 +113,6 @@ function displayMessage(message: ChatEntry): HTMLElement {
     default:
       messageContainer.setAttribute("class", "others-message");
   }
-  if (message.author == userIsAuthor) {
-  } else {
-  }
   messageContainer.textContent = message.text;
   return messageContainer;
 }
@@ -126,7 +123,7 @@ function deleteChildren(container: HTMLElement) {
   }
 }
 function addChildren(container: HTMLElement, children: HTMLElement[]) {
-  children.map((child) => container.appendChild(child));
+  children.forEach((child) => container.appendChild(child));
 }
 function displayChat(chat: ChatHistory, container: HTMLElement): void {
   const chatElementsHtml = chat.map((value: ChatEntry) => {

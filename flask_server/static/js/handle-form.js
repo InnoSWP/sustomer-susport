@@ -20,7 +20,7 @@ function submitForm(form, container) {
         user_id: 1337,
     }, (text) => {
         const body = JSON.parse(text);
-        body.map((similarQuestion) => {
+        body.forEach((similarQuestion) => {
             return updateChatComposition({
                 author: similarQuestionLabel,
                 text: `${similarQuestion.question}   ?=>  ${similarQuestion.answer}`,
@@ -79,10 +79,6 @@ function displayMessage(message) {
         default:
             messageContainer.setAttribute("class", "others-message");
     }
-    if (message.author == userIsAuthor) {
-    }
-    else {
-    }
     messageContainer.textContent = message.text;
     return messageContainer;
 }
@@ -92,7 +88,7 @@ function deleteChildren(container) {
     }
 }
 function addChildren(container, children) {
-    children.map((child) => container.appendChild(child));
+    children.forEach((child) => container.appendChild(child));
 }
 function displayChat(chat, container) {
     const chatElementsHtml = chat.map((value) => {
@@ -134,7 +130,7 @@ function setup() {
     }
     const button = form.querySelector("button[value=submit]");
     button.onclick = () => submitForm(form, container);
-    const refreshButton = (form.querySelector("button[value=refresh"));
+    const refreshButton = (form.querySelector("button[value=refresh]"));
     let container = document.querySelector("div#message-history");
     document.body.appendChild(container);
     refreshButton.onclick = () => getUpdatesForMessages(container);
