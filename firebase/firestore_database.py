@@ -3,8 +3,8 @@ from os import environ
 
 import firebase_admin
 from firebase_admin import credentials, firestore
-from question_entry import QuestionEntry
-from team_entry import TeamEntry
+from firebase.question_entry import QuestionEntry
+from firebase.team_entry import TeamEntry
 
 
 class FirestoreDatabase:
