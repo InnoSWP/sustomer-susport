@@ -31,4 +31,4 @@ jobs:
         env:
           firebase_key: ${{ secrets.SECRET_KEY_TEST }}
         run: |
-          pytest --firebase_key "$env:firebase_key"
+          pytest

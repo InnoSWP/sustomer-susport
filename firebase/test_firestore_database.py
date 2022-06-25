@@ -1,12 +1,8 @@
-import pytest
+from os import environ
 
 
-@pytest.fixture(scope="session")
-def firebase_key(pytestconfig):
-    return pytestconfig.getoption("firebase_key")
-
-
-def test_teams(firebase_key):
+def test_teams():
+    firebase_key = environ.get('firebase_key', 'default_value')
     print(firebase_key)
     assert False
 
