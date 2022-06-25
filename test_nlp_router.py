@@ -57,4 +57,3 @@ def test_similar():
 
     response = client.delete("/delete", params={"question": "What is the strongest muscle in the human's bod?"})
     assert response.status_code == 200
-
