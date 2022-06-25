@@ -2,8 +2,8 @@ import logging
 import asyncio
 import threading
 
-from flask_server import FlaskThread
-from telegram_server import BotThread
+from flask_server.server import FlaskThread
+from telegram_server.bot import BotThread
 
 
 def setup_threads():
