@@ -1,6 +1,5 @@
 from similarity_providers import abs_sim_provider, sus_sim_provider
 
-
 QUESTION : str = "What is the strongest muscle in the humans body?"
 def test_abs_encode_question():
     encoded = abs_sim_provider.encode_question(QUESTION)

@@ -1,10 +1,10 @@
 import uvicorn
-from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_404_NOT_FOUND
-from firebase.firestore_database import FirestoreDatabase
-from firebase.question_entry import QuestionEntry
 from fastapi import FastAPI, Response
 from pydantic import BaseModel
+from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_404_NOT_FOUND
 
+from firebase.firestore_database import FirestoreDatabase
+from firebase.question_entry import QuestionEntry
 from nlp.similarity_providers import sus_sim_provider
 
 SIMILARITY_CONST = 0.75

@@ -1,5 +1,6 @@
-from nlp_router import app
 from fastapi.testclient import TestClient
+
+from nlp_router import app
 
 client = TestClient(app)
 
