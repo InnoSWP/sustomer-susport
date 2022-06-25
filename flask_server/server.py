@@ -4,6 +4,7 @@ from typing import Callable
 import dotenv
 import requests
 from flask import Flask, jsonify, render_template, request
+from flask_wtf import CSRFProtect
 from telegram import Update
 
 
@@ -15,6 +16,9 @@ class FlaskThread:
     def __init__(self):
         self.app = Flask(__name__)
         self.app.config['SECRET_KEY'] = os.urandom(12)
+
+        csrf = CSRFProtect()
+        csrf.init_app(self.app)
 
         self.app.add_url_rule('/', view_func=self.index)
         self.app.add_url_rule(

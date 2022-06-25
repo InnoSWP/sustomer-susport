@@ -1,5 +1,4 @@
 import asyncio
-import logging
 import threading
 
 from flask_server.server import FlaskThread
@@ -21,9 +20,4 @@ def setup_threads():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO,
-        datefmt='%H:%M:%S'
-    )
-
     setup_threads()
