@@ -13,7 +13,7 @@ class FlaskThread:
     messages_to_proceed: list[str] = []
 
     def __init__(self):
-        self.app = Flask(__name__)
+        self.app = Flask()
         self.app.config['SECRET_KEY'] = os.urandom(12)
 
         self.app.add_url_rule('/', view_func=self.index)
