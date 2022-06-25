@@ -41,3 +41,4 @@ pydantic~=1.9.1
 pytest~=7.1.2
 firebase-admin~=5.2.0
 flask_wtf
+isort
