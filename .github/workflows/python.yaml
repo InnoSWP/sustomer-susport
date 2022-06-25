@@ -32,3 +32,6 @@ jobs:
           firebase_key: ${{ secrets.FIREBASE_KEY }}
         run: |
           pytest
+      - name: Fixing imports order with Isort
+        run: |
+          isort . --check-only
