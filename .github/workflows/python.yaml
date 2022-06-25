@@ -1,4 +1,4 @@
-name: Python (Flake8 & Pytest)
+name: Python (flake8, pytest, isort)
 
 on: [push]
 
