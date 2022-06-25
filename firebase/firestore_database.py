@@ -63,7 +63,7 @@ class FirestoreDatabase:
 
     # Returns answer if found exactly the same key
     def get_answer(self, question_key: tuple[str, QuestionEntry]):
-        raise Exception(f"Method is not implemented: {self.__class__} -> get_answer")
+        raise NotImplementedError(f"Method is not implemented: {self.__class__} -> get_answer")
 
 
     def set_question(self, question: QuestionEntry):
@@ -73,4 +73,4 @@ class FirestoreDatabase:
         self.db.collection(u'questions').document().set(question_data)
 
     def delete_question(self, question: tuple[str, QuestionEntry]):
-        raise Exception(f"Method is not implemented: {self.__class__} -> delete_question")
+        raise NotImplementedError(f"Method is not implemented: {self.__class__} -> delete_question")
