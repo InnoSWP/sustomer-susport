@@ -1,10 +1,9 @@
 import os
-import dotenv
-
 from typing import Callable
 
+import dotenv
 import requests
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, jsonify, render_template, request
 from telegram import Update
 
 

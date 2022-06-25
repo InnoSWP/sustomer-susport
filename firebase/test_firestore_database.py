@@ -1,6 +1,6 @@
 from firestore_database import FirestoreDatabase
-from team_entry import TeamEntry
 from question_entry import QuestionEntry
+from team_entry import TeamEntry
 
 
 class TestFirestoreDatabase:

@@ -1,5 +1,5 @@
-import logging
 import asyncio
+import logging
 import threading
 
 from flask_server.server import FlaskThread
