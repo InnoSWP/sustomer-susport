@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from nlp.similarity_providers import sus_sim_provider
 
-SIMILARITY_CONST = 0.75
+SIMILARITY_CONST = 0.7
 app = FastAPI()
 cached_questions: list[QuestionEntry] = []
 fd = FirestoreDatabase()
