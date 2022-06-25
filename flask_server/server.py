@@ -15,10 +15,9 @@ class FlaskThread:
 
     def __init__(self):
         self.app = Flask(__name__)
-        self.app.config['SECRET_KEY'] = os.urandom(12)
-
         csrf = CSRFProtect()
         csrf.init_app(self.app)
+        self.app.config['SECRET_KEY'] = os.urandom(12)
 
         self.app.add_url_rule('/', view_func=self.index)
         self.app.add_url_rule(
