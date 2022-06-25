@@ -7,7 +7,6 @@ def test_teams():
     fd = FirestoreDatabase(firebase_key)
     for t in fd.teams():
         print(f'{t.team_name}: {t.members}')
-    assert False
 
 
 def test_get_team():

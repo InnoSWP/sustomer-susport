@@ -7,7 +7,7 @@ from firebase.team_entry import TeamEntry
 
 class FirestoreDatabase:
     def __init__(self, key: str):
-        cred = credentials.Certificate('sustomer-susport-private-key.json')
+        cred = credentials.Certificate(key)
         firebase_admin.initialize_app(cred)
         self.db = firestore.client()
 
