@@ -62,10 +62,9 @@ class FirestoreDatabase:
         return questions
 
     # Returns answer if found exactly the same key
-    '''
-    def get_answer(self, question_key: (str, QuestionEntry)):
-        pass
-    '''
+    def get_answer(self, question_key: tuple[str, QuestionEntry]):
+        raise Exception(f"Method is not implemented: {self.__class__} -> get_answer")
+
 
     def set_question(self, question: QuestionEntry):
         question_data = {'key': question.key,
@@ -73,7 +72,5 @@ class FirestoreDatabase:
                          'answer': question.answer}
         self.db.collection(u'questions').document().set(question_data)
 
-    '''
-    def delete_question(self, question: (str, QuestionEntry)):
-        pass
-    '''
+    def delete_question(self, question: tuple[str, QuestionEntry]):
+        raise Exception(f"Method is not implemented: {self.__class__} -> delete_question")
