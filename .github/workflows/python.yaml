@@ -1,4 +1,4 @@
-name: Python package
+name: Python (Flake8 & Pytest)
 
 on: [push]
 
