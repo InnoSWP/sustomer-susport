@@ -5,7 +5,7 @@ from firebase.question_entry import QuestionEntry
 from fastapi import FastAPI, Response
 from pydantic import BaseModel
 
-from nlp import sus_sim_provider
+from nlp.similarity_providers import sus_sim_provider
 
 SIMILARITY_CONST = 0.75
 app = FastAPI()
