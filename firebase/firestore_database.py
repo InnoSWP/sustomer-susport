@@ -8,14 +8,14 @@ from firebase.team_entry import TeamEntry
 
 
 class FirestoreDatabase:
-    def __init__(self, key: str = None):
+    def __init__(self, key: str = None, app_name: str = "default"):
         if not key:
             key_str = environ.get('firebase_key', 'default_value')
             key = loads(key_str)
 
         cred = credentials.Certificate(key)
-        firebase_admin.initialize_app(cred)
-        self.db = firestore.client()
+        app = firebase_admin.initialize_app(cred, name=app_name)
+        self.db = firestore.client(app)
 
     def teams(self):
         teams_ref = self.db.collection(u'teams')

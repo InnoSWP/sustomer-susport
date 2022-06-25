@@ -4,7 +4,7 @@ from team_entry import TeamEntry
 
 
 class TestFirestoreDatabase:
-    fd = FirestoreDatabase()
+    fd = FirestoreDatabase(app_name="db_test")
 
     def test_teams(self):
         for t in self.fd.teams():
