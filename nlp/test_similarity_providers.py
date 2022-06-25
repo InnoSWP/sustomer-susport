@@ -1,4 +1,4 @@
-from nlp.similarity_providers import abs_sim_provider, sus_sim_provider
+from similarity_providers import abs_sim_provider, sus_sim_provider
 
 
 def test_abs_encode_question():
