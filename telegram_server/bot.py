@@ -27,6 +27,9 @@ class BotThread:
     def polling(self):
         self.application = Application.builder().token(self._token).build()
 
+        builder = self.application.builder()
+        builder.pool_timeout(100000000)
+
         handler = self._callbacks[0]
 
         text_handler = MessageHandler(filters.TEXT, handler)
