@@ -1,5 +1,4 @@
 class QuestionEntry:
-    # _question_key - temporarily made to be string
     _key: str
     question: str
     answer: str
@@ -10,7 +9,10 @@ class QuestionEntry:
         self.answer = answer
 
     def __str__(self):
-        return self._key
+        return self.question
+
+    def __eq__(self, other):
+        return (self.key == other.key) and (self.question == other.question) and (self.answer == other.answer)
 
     @property
     def key(self):

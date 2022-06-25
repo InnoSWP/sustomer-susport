@@ -7,12 +7,6 @@ from json import loads
 from os import environ
 
 
-def get_fd():
-    firebase_key_str = environ.get('firebase_key', 'default_value')
-    firebase_key = loads(firebase_key_str)
-    return FirestoreDatabase(firebase_key)
-
-
 class FirestoreDatabase:
     def __init__(self, key: str = None):
         if not key:
@@ -61,11 +55,19 @@ class FirestoreDatabase:
 
         return questions
 
-    # Returns answer if found exactly the same key
-    '''
-    def get_answer(self, question_key: (str, QuestionEntry)):
-        pass
-    '''
+    # Returns question item if found exactly same question (question field), otherwise None
+    def get_question(self, question: (str, QuestionEntry)):
+        questions_ref = self.db.collection(u'questions')
+        questions_query = questions_ref.where(u'question', u'==', str(question)).stream()
+        q_item = None
+        for q_item in questions_query:
+            pass
+
+        if q_item:
+            question_dict = q_item.to_dict()
+            return QuestionEntry(question_dict['key'], question_dict['question'], question_dict['answer'])
+        else:
+            return None
 
     def set_question(self, question: QuestionEntry):
         question_data = {'key': question.key,
@@ -73,7 +75,8 @@ class FirestoreDatabase:
                          'answer': question.answer}
         self.db.collection(u'questions').document().set(question_data)
 
-    '''
     def delete_question(self, question: (str, QuestionEntry)):
-        pass
-    '''
+        questions_ref = self.db.collection(u'questions')
+        questions_query = questions_ref.where(u'question', u'==', str(question)).stream()
+        for q_item in questions_query:
+            q_item.reference.delete()

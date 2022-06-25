@@ -11,6 +11,9 @@ class TeamEntry:
     def __str__(self):
         return self._team_name
 
+    def __eq__(self, other):
+        return (self.team_name == other.team_name) and (self.members == other.members)
+
     @property
     def team_name(self):
         return self._team_name
