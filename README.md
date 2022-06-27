@@ -1,5 +1,7 @@
 # Seamless Customer Support
 
+[//]: <> (TODO:Badges)
+[![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=InnoSWP_sustomer-susport&metric=alert_status)](https://sonarcloud.io/dashboard?id=InnoSWP_sustomer-susport)
 
 ## Description and features list
 An open-source web-application easily embeddable into customer's service for seamless usability both for clients (people who ask the questions) and volunteers (people who answer questions)
@@ -20,6 +22,8 @@ For that purpose we provide
 
 
 ## Project installation
+
+## How to run
 you need 
 - `python` ~= 3.10
 - `pip` corresponding to your python version
@@ -62,4 +66,5 @@ set its value to either:
 
 
 ## Demo
-[//]: <> (TODO)
+[![Photo](pictures/sustomer-demo.gif)](https://drive.google.com/file/d/1Nwq44h9FfPelErGhZsXWs6-GKN8Y9zgT/view?usp=sharing)
+
