@@ -1,5 +1,7 @@
 # Seamless Customer Support
 
+[//]: <> (TODO:Badges)
+[![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=InnoSWP_sustomer-susport&metric=alert_status)](https://sonarcloud.io/dashboard?id=InnoSWP_sustomer-susport)
 
 ## Description and features list
 An open-source web-application easily embeddable into customer's service for seamless usability both for clients (people who ask the questions) and volunteers (people who answer questions)
