@@ -42,7 +42,7 @@ def get_question(question: str):
         return JSONResponse({"status": "Such question does not exist"}, status_code=404)
 
 
-@app.post("/new")
+@app.post("/new-question")
 def set_question(q_item: QuestionItem):
     q_key = sus_sim_provider.encode_question(q_item.question)
     q_entry = QuestionEntry(q_key, q_item.question, q_item.answer)
@@ -52,7 +52,7 @@ def set_question(q_item: QuestionItem):
     return Response(status_code=201)
 
 
-@app.delete("/delete")
+@app.delete("/delete-question")
 def delete_question(question: str):
     cur_questions = fd.questions()
 

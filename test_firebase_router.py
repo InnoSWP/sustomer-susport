@@ -18,10 +18,10 @@ def test_teams():
 def test_team_funcs():
     initial_teams = client.get("/teams")
 
-    team = {"team_name": "sustem inc", "members": ['Boris', 'Timofei', 'Stepan', 'Nikita'], "tg_group_id": 'idkwhichnumber'}
+    team = {"team_name": "sustem inc", "members": ['Boris', 'Timofei', 'Stepan', 'Nikita'], "tg_group_id": 123}
 
     # Add new team to firestore
-    response = client.post("/team", json=team)
+    response = client.post("/new-team", json=team)
     assert response.status_code == 201
 
     assert client.get("/teams").json() != initial_teams.json()
