@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-		"outDir": "./flask_server/static/js",
-		"rootDir": "./ts-modules",
+    "outDir": "./flask_server/static/js",
+    "rootDir": "./ts-modules",
     "removeComments": true,
     "preserveConstEnums": true,
+    "esModuleInterop": false,
     "sourceMap": true,
     "declaration": false,
     "noImplicitAny": true,
@@ -12,8 +13,11 @@
     "skipLibCheck": true,
     "module": "ES6",
     "target": "es2015",
-    "types": [],
+    "types": ["jest"],
     "lib": ["dom", "es5", "scripthost", "es2015"]
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "typeAcquisition": {
+    "include": ["jest"]
+  }
 }

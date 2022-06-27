@@ -4,7 +4,7 @@ from typing import Callable
 import dotenv
 import requests
 from flask import Flask, jsonify, render_template, request
-from flask_wtf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect
 from telegram import Update
 
 

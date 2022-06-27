@@ -3,6 +3,7 @@ from os import environ
 
 import firebase_admin
 from firebase_admin import credentials, firestore
+
 from firebase.question_entry import QuestionEntry
 from firebase.team_entry import TeamEntry
 
