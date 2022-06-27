@@ -2,7 +2,7 @@
 
 [//]: <> (TODO:Badges)
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=InnoSWP_sustomer-susport&metric=alert_status)](https://sonarcloud.io/dashboard?id=InnoSWP_sustomer-susport)
-[![CI](https://github.com/InnoSWP/sustomer-susport/actions/workflows/python.yaml/badge.svg)](https://github.com/InnoSWP/sustomer-susport/actions/workflows/python.yml)
+![CI](https://github.com/InnoSWP/sustomer-susport/actions/workflows/python.yaml/badge.svg)
 
 ## Description and features list
 An open-source web-application easily embeddable into customer's service for seamless usability both for clients (people who ask the questions) and volunteers (people who answer questions)
