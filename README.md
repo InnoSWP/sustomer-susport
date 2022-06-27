@@ -22,6 +22,8 @@ For that purpose we provide
 
 
 ## Project installation
+
+## How to run
 you need 
 - `python` ~= 3.10
 - `pip` corresponding to your python version
@@ -63,4 +65,5 @@ set its value to:
 
 
 ## Demo
-[//]: <> (TODO)
+[![Photo](pictures/sustomer-demo.gif)](https://drive.google.com/file/d/1Nwq44h9FfPelErGhZsXWs6-GKN8Y9zgT/view?usp=sharing)
+
