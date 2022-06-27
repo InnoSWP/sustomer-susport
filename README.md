@@ -1,7 +1,5 @@
 # Seamless Customer Support
 
-[//]: <> (TODO:Badges)
-
 
 ## Description and features list
 An open-source web-application easily embeddable into customer's service for seamless usability both for clients (people who ask the questions) and volunteers (people who answer questions)
@@ -13,7 +11,12 @@ For that purpose we provide
 
 
 ## Technologies stack
-[//]: <> (TODO)
+- [Python 3.10](https://www.python.org)
+- [Typescript 4.7](https://www.typescriptlang.org)
+- [Flask 2.1.2](https://flask.palletsprojects.com/en/2.1.x/)
+- [FastAPI 0.78](https://fastapi.tiangolo.com)
+- [BERT](https://github.com/google-research/bert)
+- [Google Firebase](https://firebase.google.com)
 
 
 ## Project installation
@@ -37,9 +40,8 @@ you need
 
 ### Add firebase token
 Create an environment variable ```firebase_key``` and
-set its value to either:
-- path to ```.json``` token
-- json data itself
+set its value to:
+- token data in ```json``` format
 
 ### Install python requirements
 - you may wish to use python virtual env
