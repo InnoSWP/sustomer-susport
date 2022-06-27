@@ -130,4 +130,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-/firebase/sustomer-susport-private-key.json
+/firebase/firebase_key.json

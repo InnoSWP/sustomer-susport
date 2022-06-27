@@ -1,4 +1,5 @@
 from json import loads
+from json.decoder import JSONDecodeError
 from os import environ
 
 import firebase_admin
@@ -8,11 +9,19 @@ from firebase.question_entry import QuestionEntry
 from firebase.team_entry import TeamEntry
 
 
+class FirebaseTokenException (Exception):
+    pass
+
+
 class FirestoreDatabase:
     def __init__(self, key: str = None, app_name: str = "default"):
+        # Search for key in environment
         if not key:
-            key_str = environ.get('firebase_key', 'default_value')
-            key = loads(key_str)
+            key = environ.get('firebase_key', 'firebase_key.json')
+
+        # Check if it is a path or json data
+        if key[-5:] != '.json':
+            key = loads(key)
 
         cred = credentials.Certificate(key)
         app = firebase_admin.initialize_app(cred, name=app_name)

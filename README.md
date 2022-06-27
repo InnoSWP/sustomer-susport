@@ -40,7 +40,8 @@ you need
 
 ### Add firebase token
 Create an environment variable ```firebase_key``` and
-set its value to:
+set its value to either:
+- path to ```.json``` token
 - token data in ```json``` format
 
 ### Install python requirements
