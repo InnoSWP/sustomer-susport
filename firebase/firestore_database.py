@@ -1,5 +1,4 @@
 from json import loads
-from json.decoder import JSONDecodeError
 from os import environ
 
 import firebase_admin
@@ -7,10 +6,6 @@ from firebase_admin import credentials, firestore
 
 from firebase.question_entry import QuestionEntry
 from firebase.team_entry import TeamEntry
-
-
-class FirebaseTokenException (Exception):
-    pass
 
 
 class FirestoreDatabase:
@@ -31,7 +26,9 @@ class FirestoreDatabase:
         teams_ref = self.db.collection(u'teams')
         docs = teams_ref.stream()
 
-        teams: list[TeamEntry] = [TeamEntry(doc.id, set(doc.to_dict()['members'])) for doc in docs]
+        teams: list[TeamEntry] = [TeamEntry(doc.id,
+                                            doc.to_dict()['tg_group_id'],
+                                            set(doc.to_dict()['members'])) for doc in docs]
 
         return teams
 
@@ -40,13 +37,14 @@ class FirestoreDatabase:
         doc = doc_ref.get()
 
         if doc.exists:
-            return TeamEntry(str(team), set(doc.to_dict()['members']))
+            doc_dict = doc.to_dict()
+            return TeamEntry(str(team), doc_dict['tg_group_id'], set(doc_dict['members']))
         else:
             return None
 
     def set_team(self, team: TeamEntry):
         doc_ref = self.db.collection(u'teams').document(str(team))
-        team_data = {u'members': team.members}
+        team_data = {u'members': team.members, u'tg_group_id': team.tg_group_id}
 
         doc_ref.set(team_data)
 

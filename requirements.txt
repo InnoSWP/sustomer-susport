@@ -35,7 +35,6 @@ virtualenv==20.10.0
 python-dotenv~=0.20.0
 Flask~=2.1.2
 uvicorn~=0.17.6
-starlette~=0.19.1
 fastapi~=0.78.0
 pydantic~=1.9.1
 pytest~=7.1.2

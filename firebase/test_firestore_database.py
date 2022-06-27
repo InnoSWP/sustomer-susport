@@ -13,9 +13,9 @@ class TestFirestoreDatabase:
     def test_team_funcs(self):
         initial_teams = self.fd.teams()
 
-        team_1 = TeamEntry("team_1_OAIwnn2238FFew331u")
-        team_2 = TeamEntry("team_2_OAIwnn2238FFew331u", set())
-        team_3 = TeamEntry("team_3_OAIwnn2238FFew331u", {"@user_1", 228, "@user_3"})
+        team_1 = TeamEntry("team_1_OAIwnn2238FFew331u", -1)
+        team_2 = TeamEntry("team_2_OAIwnn2238FFew331u", -2, set())
+        team_3 = TeamEntry("team_3_OAIwnn2238FFew331u", -3, {"@user_1", 228, "@user_3"})
 
         self.fd.set_team(team_1)
         self.fd.set_team(team_2)
