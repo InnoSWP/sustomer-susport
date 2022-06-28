@@ -1,4 +1,3 @@
-from datetime import datetime
 from json import loads
 from os import environ
 
