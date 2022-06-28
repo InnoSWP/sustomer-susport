@@ -1,3 +1,4 @@
+from datetime import datetime
 from json import loads
 from os import environ
 
@@ -6,6 +7,7 @@ from firebase_admin import credentials, firestore
 
 from firebase.question_entry import QuestionEntry
 from firebase.team_entry import TeamEntry
+from firebase.chat_entry import ChatEntry, ChatMessage
 
 
 class FirestoreDatabase:
@@ -78,13 +80,44 @@ class FirestoreDatabase:
             return None
 
     def set_question(self, question: QuestionEntry):
-        question_data = {'key': question.key,
-                         'question': question.question,
-                         'answer': question.answer}
-        self.db.collection(u'questions').document().set(question_data)
+        self.db.collection(u'questions').document().set(question.to_dict())
 
     def delete_question(self, question: (str, QuestionEntry)):
         questions_ref = self.db.collection(u'questions')
         questions_query = questions_ref.where(u'question', u'==', str(question)).stream()
         for q_item in questions_query:
             q_item.reference.delete()
+
+    def chats(self):
+        chats_list = self.db.collection(u"chats").get()
+        chats = []
+
+        for chat_doc in chats_list:
+            c_item = chat_doc.to_dict()
+            chats.append(ChatEntry(chat_doc.id, messages=[ChatMessage(m["message"], m["user_sent"], m["time"])
+                                                          for m in c_item["messages"]], is_open=c_item["is_open"]))
+
+        return chats
+
+    def get_chat(self, chat_id: (str, ChatEntry)):
+        doc_ref = self.db.collection(u'chats').document(str(chat_id))
+        doc = doc_ref.get()
+
+        if doc.exists:
+            doc_dict = doc.to_dict()
+            return ChatEntry(str(chat_id),
+                             messages=[ChatMessage(m["message"], m["user_sent"], m["time"])
+                                       for m in doc_dict['messages']],
+                             is_open=doc_dict['is_open'])
+        else:
+            return None
+
+    def set_chat(self, chat_entry: ChatEntry):
+        doc_ref = self.db.collection(u'chats').document(chat_entry.chat_id)
+        team_data = {u'messages': chat_entry.messages, u'is_open': chat_entry.is_open}
+
+        doc_ref.set(team_data)
+
+    def delete_chat(self, chat_entry: (str, ChatEntry)):
+        doc_ref = self.db.collection(u'chats').document(str(chat_entry))
+        doc_ref.delete()
