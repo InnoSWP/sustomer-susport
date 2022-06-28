@@ -28,7 +28,7 @@ def index():
 def get_teams():
     cur_teams = fd.teams()
 
-    answer = [{"team_name": t.team_name, "members": t.members, "tg_group_id": t.tg_group_id} for t in cur_teams]
+    answer = [t.to_dict() for t in cur_teams]
     return answer
 
 
@@ -36,8 +36,7 @@ def get_teams():
 def get_team(team_name: str):
     cur_teams = fd.teams()
 
-    answer = [{"team_name": t.team_name, "members": t.members, "tg_group_id": t.tg_group_id}
-              for t in cur_teams if t.team_name == team_name]
+    answer = [t.to_dict() for t in cur_teams if t.team_name == team_name]
     if answer:
         return answer[0]
     else:
@@ -57,9 +56,7 @@ def set_team(t_item: TeamItem):
     if not already_exist:
         team_entry = TeamEntry(t_item.team_name, t_item.tg_group_id, members)
         fd.set_team(team_entry)
-        return JSONResponse({"team_name": t_item.team_name, "tg_group_id": t_item.tg_group_id,
-                             "members": list(members), "status": "created"},
-                            status_code=201)
+        return JSONResponse(team_entry.to_dict() | {"status": "created"}, status_code=201)
     else:
         return JSONResponse({"status": "Team with such name already exists"}, status_code=409)
 
@@ -76,9 +73,7 @@ def delete_team(team_name: str):
     t = fd.get_team(team_name)
     fd.delete_team(team_name)
 
-    return JSONResponse({"team_name": t.team_name, "tg_group_id": t.tg_group_id,
-                         "members": list(t.members), "status": "deleted"},
-                        status_code=200)
+    return JSONResponse(t.to_dict() | {"status": "deleted"}, status_code=200)
 
 
 def run_router():

@@ -26,7 +26,7 @@ def index():
 def get_questions():
     cur_questions = fd.questions()
 
-    answer = [{"key": q.key, "question": q.question, "answer": q.answer} for q in cur_questions]
+    answer = [q.to_dict() for q in cur_questions]
     return answer
 
 
@@ -34,8 +34,7 @@ def get_questions():
 def get_question(question: str):
     cur_questions = fd.questions()
 
-    answer = [{"key": q.key, "question": q.question, "answer": q.answer}
-              for q in cur_questions if q.question == question]
+    answer = [q.to_dict() for q in cur_questions if q.question == question]
     if answer:
         return answer[0]
     else:
@@ -49,8 +48,7 @@ def set_question(q_item: QuestionItem):
 
     fd.set_question(q_entry)
 
-    return JSONResponse({"key": q_key, "question": q_item.question, "answer": q_item.answer, "status": "created"},
-                        status_code=201)
+    return JSONResponse(q_entry.to_dict() | {"status": "created"}, status_code=201)
 
 
 @app.delete("/delete-question")
@@ -64,8 +62,7 @@ def delete_question(question: str):
     q = fd.get_question(question)
     fd.delete_question(question)
 
-    return JSONResponse({"key": q.key, "question": q.question, "answer": q.answer, "status": "deleted"},
-                        status_code=200)
+    return JSONResponse(q.to_dict() | {"status": "deleted"}, status_code=200)
 
 
 @app.get("/similar")

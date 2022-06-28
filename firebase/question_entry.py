@@ -14,6 +14,9 @@ class QuestionEntry:
     def __eq__(self, other):
         return (self.key == other.key) and (self.question == other.question) and (self.answer == other.answer)
 
+    def to_dict(self):
+        return {"key": self._key, "question": self.question, "answer": self.answer}
+
     @property
     def key(self):
         return self._key

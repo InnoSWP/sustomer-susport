@@ -18,6 +18,9 @@ class TeamEntry:
                (self.tg_group_id == other.tg_group_id) and\
                (self.members == other.members)
 
+    def to_dict(self):
+        return {"team_name": self._team_name, "tg_group_id": self.tg_group_id, "members": list(self.members)}
+
     @property
     def team_name(self):
         return self._team_name
