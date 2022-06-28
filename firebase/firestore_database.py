@@ -114,7 +114,7 @@ class FirestoreDatabase:
 
     def set_chat(self, chat_entry: ChatEntry):
         doc_ref = self.db.collection(u'chats').document(chat_entry.chat_id)
-        team_data = {u'messages': chat_entry.messages, u'is_open': chat_entry.is_open}
+        team_data = {u'messages': [m.to_dict() for m in chat_entry.messages], u'is_open': chat_entry.is_open}
 
         doc_ref.set(team_data)
 

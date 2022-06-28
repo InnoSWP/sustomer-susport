@@ -1,6 +1,7 @@
 from firestore_database import FirestoreDatabase
 from question_entry import QuestionEntry
 from team_entry import TeamEntry
+from chat_entry import ChatEntry, ChatMessage
 
 
 class TestFirestoreDatabase:
@@ -61,3 +62,36 @@ class TestFirestoreDatabase:
         self.fd.delete_question("Why were you running away?")
 
         assert self.fd.questions() == initial_questions
+
+    def test_chats(self):
+        for c in self.fd.chats():
+            print(c.to_dict())
+
+    def test_chats_funcs(self):
+        initial_chats = self.fd.chats()
+
+        chat_1 = ChatEntry("chat_test_1_OIERUcmio213JDd",
+                           messages=[ChatMessage("Who let the dogs out?", user_sent=True),
+                                     ChatMessage("Stop spamming, or you'll be banned", user_sent=False)],
+                           is_open=False)
+        chat_2 = ChatEntry("chat_test_2_OIERUcmio213JDd",
+                           messages=[ChatMessage("How could i download it?", user_sent=True)],
+                           is_open=True)
+        chat_3 = ChatEntry("chat_test_3_OIERUcmio213JDd")
+
+        self.fd.set_chat(chat_1)
+        self.fd.set_chat(chat_2)
+        self.fd.set_chat(chat_3)
+
+        assert self.fd.chats() != initial_chats
+
+        assert self.fd.get_chat(chat_1) == chat_1
+        assert self.fd.get_chat(chat_2) == chat_2
+        assert self.fd.get_chat("chat_test_3_OIERUcmio213JDd") == chat_3
+        assert self.fd.get_chat("non-existing-chat_OIERUcmio213JDd") is None
+
+        self.fd.delete_chat(chat_1)
+        self.fd.delete_chat(chat_2)
+        self.fd.delete_chat("chat_test_3_OIERUcmio213JDd")
+
+        assert self.fd.chats() == initial_chats
