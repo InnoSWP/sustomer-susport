@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from firebase_router import app
+from tg_router import app
 
 client = TestClient(app)
 

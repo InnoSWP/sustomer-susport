@@ -49,17 +49,23 @@ def set_team(t_item: TeamItem):
     # Check teams with the same name
     cur_teams = fd.teams()
     already_exist = bool([t for t in cur_teams if t.team_name == t_item.team_name])
+    if not t_item.members:
+        members = []
+    else:
+        members = t_item.members
 
     if not already_exist:
-        team_entry = TeamEntry(t_item.team_name, t_item.tg_group_id, t_item.members)
+        team_entry = TeamEntry(t_item.team_name, t_item.tg_group_id, members)
         fd.set_team(team_entry)
-        return Response(status_code=201)
+        return JSONResponse({"team_name": t_item.team_name, "tg_group_id": t_item.tg_group_id,
+                             "members": list(members), "status": "created"},
+                            status_code=201)
     else:
         return JSONResponse({"status": "Team with such name already exists"}, status_code=409)
 
 
 @app.delete("/delete-team")
-def delete_question(team_name: str):
+def delete_team(team_name: str):
     # Check if such team exists
     cur_teams = fd.teams()
     already_exist = bool([t for t in cur_teams if t.team_name == team_name])
@@ -67,9 +73,12 @@ def delete_question(team_name: str):
     if not already_exist:
         return JSONResponse({"status": "Team with such name does not exist"}, status_code=404)
 
+    t = fd.get_team(team_name)
     fd.delete_team(team_name)
 
-    return Response(status_code=200)
+    return JSONResponse({"team_name": t.team_name, "tg_group_id": t.tg_group_id,
+                         "members": list(t.members), "status": "deleted"},
+                        status_code=200)
 
 
 def run_router():

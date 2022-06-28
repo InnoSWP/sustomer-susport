@@ -49,7 +49,8 @@ def set_question(q_item: QuestionItem):
 
     fd.set_question(q_entry)
 
-    return Response(status_code=201)
+    return JSONResponse({"key": q_key, "question": q_item.question, "answer": q_item.answer, "status": "created"},
+                        status_code=201)
 
 
 @app.delete("/delete-question")
@@ -60,9 +61,11 @@ def delete_question(question: str):
     if not found:
         return JSONResponse({"status": "Such question does not exist"}, status_code=404)
 
+    q = fd.get_question(question)
     fd.delete_question(question)
 
-    return Response(status_code=200)
+    return JSONResponse({"key": q.key, "question": q.question, "answer": q.answer, "status": "deleted"},
+                        status_code=200)
 
 
 @app.get("/similar")
