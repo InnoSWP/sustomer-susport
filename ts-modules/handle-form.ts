@@ -5,37 +5,11 @@ function requestFailure(error: any): void {
   console.log(error);
 }
 function form2text(form: HTMLElement): string {
-  const el = form.querySelector("#question_text") as HTMLInputElement;
+  const el = form.querySelector("#question_text") as HTMLInputElement | null;
+  if (el == null) {
+    return "";
+  }
   return core.html2text(el);
-}
-
-function sendMessage(
-  msg: core.MessageRequestBody,
-  handleSimilarQuestions: (text: string) => void
-) {
-  const parameters: core.FetchParameters = {
-    url: "/messages",
-    onSuccess: function (value: Response): void {
-      value.text().then((text) => {
-        if (value.ok) {
-          handleSimilarQuestions(text);
-        }
-      });
-    },
-    onError: requestFailure,
-    request: {
-      ...core.defaultRequest,
-      method: "POST",
-      body: JSON.stringify(msg),
-    },
-  };
-  core.basicFetch(parameters);
-}
-
-function appendAnswer(container: HTMLElement, text: string): void {
-  const div = document.createElement("div");
-  div.textContent = text;
-  container.appendChild(div);
 }
 
 interface ChatEntry {
@@ -71,16 +45,20 @@ function deleteChildren(container: HTMLElement) {
   for (let i = container.children.length; i > 0; i--) {
     container.removeChild(container.children[0]);
   }
+  return container;
 }
+
 function addChildren(container: HTMLElement, children: HTMLElement[]) {
   children.forEach((child) => container.appendChild(child));
+  return container;
 }
-function displayChat(chat: ChatHistory, container: HTMLElement): void {
+function displayChat(chat: ChatHistory, container: HTMLElement): HTMLElement {
   const chatElementsHtml = chat.map((value: ChatEntry) => {
     return displayMessage(value);
   });
   deleteChildren(container);
   addChildren(container, chatElementsHtml);
+	return container
 }
 
 // for test purposes
@@ -92,8 +70,8 @@ export {
   displayChat,
   requestFailure,
   form2text,
-  sendMessage,
   addMessage,
+  displayMessage,
   similarQuestionLabel,
-	userIsAuthor,
+  userIsAuthor,
 };

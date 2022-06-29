@@ -12,6 +12,28 @@ function storeChat(chat: handler.ChatHistory) {
   window.localStorage.setItem("ChatHistory", JSON.stringify(chat));
 }
 
+function sendMessage(
+  msg: core.MessageRequestBody,
+  handleSimilarQuestions: (text: string) => void
+) {
+  const parameters: core.FetchParameters = {
+    url: "/messages",
+    onSuccess: function (value: Response): void {
+      value.text().then((text) => {
+        if (value.ok) {
+          handleSimilarQuestions(text);
+        }
+      });
+    },
+    onError: handler.requestFailure,
+    request: {
+      ...core.defaultRequest,
+      method: "POST",
+      body: JSON.stringify(msg),
+    },
+  };
+  core.basicFetch(parameters);
+}
 function updateChatComposition(
   message: handler.ChatEntry,
   container: HTMLElement
@@ -50,6 +72,12 @@ function submitForm(form: HTMLElement, container: HTMLElement): void {
     },
     container
   );
+}
+
+function appendAnswer(container: HTMLElement, text: string): void {
+  const div = document.createElement("div");
+  div.textContent = text;
+  container.appendChild(div);
 }
 
 function getUpdatesForMessages(container: HTMLElement) {
