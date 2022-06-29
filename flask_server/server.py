@@ -1,22 +1,19 @@
 import os
-from typing import Callable
-
 import dotenv
 import requests
 from flask import Flask, jsonify, render_template, request
 from flask_wtf.csrf import CSRFProtect
-from telegram import Update
 
 
 class FlaskThread:
-    NLP_CHECK = True
-    _callbacks: list[Callable] = list()
+    NLP_CHECK = False
     messages_to_proceed: list[str] = []
 
-    def __init__(self):
+    def __init__(self, conn):
+        self.conn = conn
         self.app = Flask(__name__)
-        csrf = CSRFProtect()
-        csrf.init_app(self.app)
+        # csrf = CSRFProtect()
+        # csrf.init_app(self.app)
         self.app.config['SECRET_KEY'] = os.urandom(12)
 
         self.app.add_url_rule('/', view_func=self.index)
@@ -26,19 +23,6 @@ class FlaskThread:
             '/messages', view_func=self.messages_post, methods=['POST'])
         self.app.add_url_rule(
             '/messages', view_func=self.messages_get, methods=['GET'])
-
-    def add_callback(self, callback: Callable):
-        self._callbacks.append(callback)
-
-    # Invoked by application handler [filters.TEXT]
-    async def flask_callback(self, update: Update, _):
-        chat_id = update.effective_chat.id
-
-        msg_text = update.message.text
-        self.messages_to_proceed.append(msg_text)
-
-        send_message = self._callbacks[0]
-        await send_message(chat_id, 'Your msg recieved')
 
     def run(self):
         return self.app.run()
@@ -70,10 +54,11 @@ class FlaskThread:
     async def send_to_tg(self, user_id, text):
         message_to_send = f'{user_id}: {text}'
 
-        send_message = self._callbacks[0]
+        # send_message = self._callbacks[0]
 
         chat_id = dotenv.dotenv_values('flask_server/.env')['TEST_CHAT_ID']
-        await send_message(chat_id, message_to_send)
+        # await send_message(chat_id, message_to_send)
+        self.conn.send([chat_id, message_to_send])
 
     async def messages_post(self):
         """
