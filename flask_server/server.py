@@ -7,8 +7,8 @@ from flask import Flask, jsonify, render_template, request
 
 
 class FlaskThread:
-    NLP_CHECK = True
-    answers_to_proceed: {int: str}  # client_id: text
+    NLP_CHECK = False  # TODO set to true when ready
+    answers_to_proceed: {int: str} = dict()  # client_id: text
 
     def __init__(self, conn):
         self.conn = conn
@@ -35,6 +35,7 @@ class FlaskThread:
         logging.info(f'Received text message to [Client - {client_id}] : {message_text}')
 
         self.answers_to_proceed[client_id] = message_text
+        print(self.answers_to_proceed)
 
     def send_to_telegram(self, client_id: int, message_text: str):
         self.conn.send([
@@ -79,11 +80,12 @@ class FlaskThread:
         client_id: int = 0  # TODO get from cookies
 
         answer = self.answers_to_proceed.get(client_id, None)
+        print('answer', answer)
 
         if answer:
             self.answers_to_proceed[client_id] = None
 
-            return jsonify(answer)
+            return jsonify([answer])
         else:
             return jsonify(None)
 

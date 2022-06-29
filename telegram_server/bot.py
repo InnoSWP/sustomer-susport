@@ -35,7 +35,7 @@ def search_by(entities_list: [T], field, value) -> Union[T, None]:
 
 
 class BotThread:
-    dialogs: [DialogEntity]
+    dialogs: [DialogEntity] = []
     volunteers_id_list = []
 
     def __init__(self, conn) -> None:
@@ -44,7 +44,10 @@ class BotThread:
         self.updater: Updater = Updater(token=self._token, use_context=True)
 
     def send_text_message(self, chat_id: int, message: str):
-        return self.updater.bot.send_message(chat_id, message)
+        return self.updater.bot.send_message(
+            chat_id,
+            message
+        )
 
     def text_handler(self, update: telegram.Update, context):
         group_chat_id = 12345  # TODO move to config
@@ -85,9 +88,12 @@ class BotThread:
 
         # TODO New client
         # TODO Send message to group
-        accepted_chat_id = 12345  # TODO User that accepted to answer
 
         if True:  # TODO If chained tg user & client
+            accepted_chat_id = 325805942  # TODO [TEST] User that accepted to answer
+
+            self.send_text_message(accepted_chat_id, f'You are assigned to the question:\n\n{message}')
+
             d = DialogEntity(
                 client_id=client_id,
                 volunteer_chat_id=accepted_chat_id
