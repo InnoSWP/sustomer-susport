@@ -9,46 +9,6 @@ function form2text(form: HTMLElement): string {
   return core.html2text(el);
 }
 
-function updateChatComposition(
-  message: ChatEntry,
-  container: HTMLElement
-): void {
-  const history = getLocalChat();
-  const newHistory = addMessage(history, message);
-  displayChat(newHistory, container);
-  storeChat(newHistory);
-}
-
-function submitForm(form: HTMLElement, container: HTMLElement): void {
-  const value: string = form2text(form);
-  sendMessage(
-    {
-      text: value,
-      user_id: 1337,
-    },
-    (text: string) => {
-      const body: Array<{ answer: string; question: string }> =
-        JSON.parse(text);
-      body.forEach((similarQuestion) => {
-        return updateChatComposition(
-          {
-            author: similarQuestionLabel,
-            text: `${similarQuestion.question}   ?=>  ${similarQuestion.answer}`,
-          },
-          container
-        );
-      });
-    }
-  );
-  updateChatComposition(
-    {
-      author: userIsAuthor,
-      text: value,
-    },
-    container
-  );
-}
-
 function sendMessage(
   msg: core.MessageRequestBody,
   handleSimilarQuestions: (text: string) => void
@@ -83,16 +43,6 @@ interface ChatEntry {
   text: string;
 }
 type ChatHistory = ChatEntry[];
-
-function getLocalChat(): ChatHistory {
-  const chat = window.localStorage.getItem("ChatHistory");
-  if (chat == null) return [];
-  return JSON.parse(chat);
-}
-
-function storeChat(chat: ChatHistory) {
-  window.localStorage.setItem("ChatHistory", JSON.stringify(chat));
-}
 
 function addMessage(chat: ChatHistory, message: ChatEntry): ChatHistory {
   chat.push(message);
@@ -133,45 +83,17 @@ function displayChat(chat: ChatHistory, container: HTMLElement): void {
   addChildren(container, chatElementsHtml);
 }
 
-function getUpdatesForMessages(container: HTMLElement) {
-  function onSuccess(response: Response): void {
-    response.text().then((value: string) => {
-      const data: string[] = JSON.parse(value);
-      if (data.length == 0) {
-        displayChat(getLocalChat(), container);
-        return;
-      }
-
-      const newMessages = data.map((text) => {
-        return { author: "support", text: text };
-      });
-      const chatHistory = getLocalChat().concat(newMessages);
-      storeChat(chatHistory);
-      displayChat(chatHistory, container);
-    });
-  }
-  core.basicFetch({
-    url: "/messages",
-    onSuccess: onSuccess,
-    onError: requestFailure,
-    request: core.defaultRequest,
-  });
-}
-
-function setup(): void {
-  const form = document.querySelector("#ask_question_form");
-  if (form == null) {
-    alert("form not found");
-    return;
-  }
-  const button = <HTMLElement>form.querySelector("button[value=submit]");
-  button.onclick = () => submitForm(<HTMLElement>form, container);
-  const refreshButton = <HTMLButtonElement>(
-    form.querySelector("button[value=refresh]")
-  );
-  let container = <HTMLElement>document.querySelector("div#message-history");
-  document.body.appendChild(container);
-  refreshButton.onclick = () => getUpdatesForMessages(container);
-}
-
-setup();
+// for test purposes
+export {
+  deleteChildren,
+  addChildren,
+  ChatHistory,
+  ChatEntry,
+  displayChat,
+  requestFailure,
+  form2text,
+  sendMessage,
+  addMessage,
+  similarQuestionLabel,
+	userIsAuthor,
+};

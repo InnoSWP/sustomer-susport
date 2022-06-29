@@ -7,31 +7,6 @@ function form2text(form) {
     const el = form.querySelector("#question_text");
     return core.html2text(el);
 }
-function updateChatComposition(message, container) {
-    const history = getLocalChat();
-    const newHistory = addMessage(history, message);
-    displayChat(newHistory, container);
-    storeChat(newHistory);
-}
-function submitForm(form, container) {
-    const value = form2text(form);
-    sendMessage({
-        text: value,
-        user_id: 1337,
-    }, (text) => {
-        const body = JSON.parse(text);
-        body.forEach((similarQuestion) => {
-            return updateChatComposition({
-                author: similarQuestionLabel,
-                text: `${similarQuestion.question}   ?=>  ${similarQuestion.answer}`,
-            }, container);
-        });
-    });
-    updateChatComposition({
-        author: userIsAuthor,
-        text: value,
-    }, container);
-}
 function sendMessage(msg, handleSimilarQuestions) {
     const parameters = {
         url: "/messages",
@@ -51,15 +26,6 @@ function appendAnswer(container, text) {
     const div = document.createElement("div");
     div.textContent = text;
     container.appendChild(div);
-}
-function getLocalChat() {
-    const chat = window.localStorage.getItem("ChatHistory");
-    if (chat == null)
-        return [];
-    return JSON.parse(chat);
-}
-function storeChat(chat) {
-    window.localStorage.setItem("ChatHistory", JSON.stringify(chat));
 }
 function addMessage(chat, message) {
     chat.push(message);
@@ -97,41 +63,5 @@ function displayChat(chat, container) {
     deleteChildren(container);
     addChildren(container, chatElementsHtml);
 }
-function getUpdatesForMessages(container) {
-    function onSuccess(response) {
-        response.text().then((value) => {
-            const data = JSON.parse(value);
-            if (data.length == 0) {
-                displayChat(getLocalChat(), container);
-                return;
-            }
-            const newMessages = data.map((text) => {
-                return { author: "support", text: text };
-            });
-            const chatHistory = getLocalChat().concat(newMessages);
-            storeChat(chatHistory);
-            displayChat(chatHistory, container);
-        });
-    }
-    core.basicFetch({
-        url: "/messages",
-        onSuccess: onSuccess,
-        onError: requestFailure,
-        request: core.defaultRequest,
-    });
-}
-function setup() {
-    const form = document.querySelector("#ask_question_form");
-    if (form == null) {
-        alert("form not found");
-        return;
-    }
-    const button = form.querySelector("button[value=submit]");
-    button.onclick = () => submitForm(form, container);
-    const refreshButton = (form.querySelector("button[value=refresh]"));
-    let container = document.querySelector("div#message-history");
-    document.body.appendChild(container);
-    refreshButton.onclick = () => getUpdatesForMessages(container);
-}
-setup();
+export { deleteChildren, addChildren, displayChat, requestFailure, form2text, sendMessage, addMessage, similarQuestionLabel, userIsAuthor, };
 //# sourceMappingURL=handle-form.js.map
