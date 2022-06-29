@@ -5,12 +5,10 @@ import threading
 import requests
 from flask import Flask, jsonify, render_template, request
 
-# from flask_wtf.csrf import CSRFProtect
-
 
 class FlaskThread:
-    NLP_CHECK = False
-    messages_to_proceed: list[str] = []
+    NLP_CHECK = True
+    answers_to_send: {int: str}  # client_id: text
 
     def __init__(self, conn):
         self.conn = conn
@@ -31,14 +29,14 @@ class FlaskThread:
         print('Flask T2')
         while True:
             res = self.conn.recv()
-            print('Flask recv: ', res)
             self.received_text_message_from_tg(*res)
 
-    def received_text_message_from_tg(self, volunteer_chat_id: int, message_text: str):
-        logging.info(f'Received text message from [Volunteer (TG) - {volunteer_chat_id}] : {message_text}')
+    def received_text_message_from_tg(self, client_id: int, message_text: str):
+        logging.info(f'Received text message to [Client - {client_id}] : {message_text}')
+
         pass  # TODO Received personal text message from volunteer
 
-    def send_to_telegram(self, client_id, message_text):
+    def send_to_telegram(self, client_id: int, message_text: str):
         self.conn.send([
             client_id,
             message_text
@@ -49,8 +47,6 @@ class FlaskThread:
         return self.app.run()
 
     def run(self):
-        print('Flask process')
-
         fs = self.flask_run, self.thread2
         ps = [threading.Thread(target=f) for f in fs]
 
@@ -69,6 +65,8 @@ class FlaskThread:
         """
         /frame, [GET]
         """
+
+        # TODO Return id cookies
         return render_template('form.html')
 
     def messages_get(self):
@@ -78,10 +76,16 @@ class FlaskThread:
         /messages [GET]
         """
 
-        result = jsonify(self.messages_to_proceed)
-        self.messages_to_proceed = []
+        client_id: int = 0  # TODO get from cookies
 
-        return result
+        corresponding_answers = self.answers_to_send.get(client_id, None)
+
+        if corresponding_answers:
+            self.answers_to_send[client_id] = None
+
+            return jsonify(corresponding_answers)
+        else:
+            return jsonify(None)
 
     async def messages_post(self):
         """
@@ -97,8 +101,8 @@ class FlaskThread:
 
         data: dict = request.json
 
+        client_id: int = 0  # TODO get from cookies
         message_text = data.get('text', None)
-        user_id = data.get('user_id', None)
 
         if self.NLP_CHECK:
             base_nlp_router_url = 'http://127.0.0.1:8000'
@@ -111,6 +115,6 @@ class FlaskThread:
                 return jsonify(resp.json())
 
         # Send to Telegram in case of no answer from NLP_router
-        self.send_to_telegram(user_id, message_text)
+        self.send_to_telegram(client_id, message_text)
 
         return 'niceee'
