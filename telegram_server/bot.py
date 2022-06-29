@@ -47,9 +47,13 @@ class BotThread:
         return self.updater.bot.send_message(chat_id, message)
 
     def text_handler(self, update: telegram.Update, context):
-        # TODO implement to handle if it in group or in personal messages
+        group_chat_id = 12345  # TODO move to config
 
         chat_id = update.effective_chat.id
+
+        if group_chat_id == chat_id:
+            return  # Message from group/channel
+
         dialog: DialogEntity = search_by(self.dialogs, 'volunteer_chat_id', chat_id)
 
         if dialog:
