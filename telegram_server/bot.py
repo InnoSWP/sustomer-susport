@@ -1,9 +1,25 @@
 import logging
 import threading
+import json
+from enum import Enum, IntEnum
+from pydantic import BaseModel
 
 import dotenv
 import telegram
 from telegram.ext import MessageHandler, Updater, filters
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+
+class IssueState(IntEnum):
+    open = 1
+    progress = 2
+    closed = 3
+
+
+class ButtonData(BaseModel):
+    state: IssueState
+    # state:int
+    issue_id: int
 
 
 class BotThread:
@@ -24,12 +40,21 @@ class BotThread:
             chat_id,
             message_text
         ])
+        data = ButtonData(state=IssueState.open, issue_id=1)
+        update.message.reply_text(
+            "test text", reply_markup=self.get_issue_buttons(data))
+
+    def get_issue_buttons(self, button_data: ButtonData) -> InlineKeyboardMarkup:
+        keyboard = [[InlineKeyboardButton(
+            "hhahah", callback_data=button_data.json())]]
+        return InlineKeyboardMarkup(keyboard)
 
     def polling(self):
         print('TG T1 (polling)')
         updater = Updater(token=self._token, use_context=True)
 
-        text_message_handler = MessageHandler(filters.Filters.text, self.text_handler)
+        text_message_handler = MessageHandler(
+            filters.Filters.text, self.text_handler)
         updater.dispatcher.add_handler(text_message_handler)
 
         updater.start_polling()
@@ -44,7 +69,8 @@ class BotThread:
 
     def received_message_from_frontend(self, client_id, message: str):
         # TODO Main func invoked on receiving message from front-end
-        logging.info(f'TG: Received message from [FRONT-END - {client_id}] : {message}')
+        logging.info(
+            f'TG: Received message from [FRONT-END - {client_id}] : {message}')
         pass
 
     def run(self):
