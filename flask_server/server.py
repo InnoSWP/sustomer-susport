@@ -50,10 +50,10 @@ class FlaskThread:
 
     def run(self):
         print('Flask process')
-        p1 = threading.Thread(target=self.flask_run)
-        p2 = threading.Thread(target=self.thread2)
 
-        ps = [p1, p2]
+        fs = self.flask_run, self.thread2
+        ps = [threading.Thread(target=f) for f in fs]
+
         [p.start() for p in ps]
         [p.join() for p in ps]
 

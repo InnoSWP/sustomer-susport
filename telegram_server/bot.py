@@ -29,8 +29,8 @@ class BotThread:
         print('TG T1 (polling)')
         updater = Updater(token=self._token, use_context=True)
 
-        text_handler = MessageHandler(filters.Filters.text, self.text_handler)
-        updater.dispatcher.add_handler(text_handler)
+        text_message_handler = MessageHandler(filters.Filters.text, self.text_handler)
+        updater.dispatcher.add_handler(text_message_handler)
 
         updater.start_polling()
         # updater.idle()
@@ -50,9 +50,8 @@ class BotThread:
     def run(self):
         print('TG process')
 
-        p1 = threading.Thread(target=self.polling)
-        p2 = threading.Thread(target=self.thread2)
+        fs = self.polling, self.thread2
+        ps = [threading.Thread(target=f) for f in fs]
 
-        ps = [p1, p2]
         [p.start() for p in ps]
         [p.join() for p in ps]
