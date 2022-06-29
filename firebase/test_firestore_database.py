@@ -1,7 +1,7 @@
+from chat_entry import ChatEntry, ChatMessage
 from firestore_database import FirestoreDatabase
 from question_entry import QuestionEntry
 from team_entry import TeamEntry
-from chat_entry import ChatEntry, ChatMessage
 
 
 class TestFirestoreDatabase:
