@@ -20,7 +20,7 @@ def test_question_funcs():
     question = {"question": "What is the hottest planet in our system?", "answer": "Venus"}
 
     # Add new question to firestore
-    response = client.post("/new", json=question)
+    response = client.post("/new-question", json=question)
     assert response.status_code == 201
 
     assert client.get("/questions").json() != initial_questions.json()
@@ -34,11 +34,11 @@ def test_question_funcs():
     assert response.status_code == 404
 
     # Delete that question
-    response = client.delete("/delete", params={"question": "What is the hottest planet in our system?"})
+    response = client.delete("/delete-question", params={"question": "What is the hottest planet in our system?"})
     assert response.status_code == 200
 
     # Non-existing question
-    response = client.delete("/delete", params={"question": "Non-existing question_WRWQFduhuw&333"})
+    response = client.delete("/delete-question", params={"question": "Non-existing question_WRWQFduhuw&333"})
     assert response.status_code == 404
 
     assert client.get("/questions").json() == initial_questions.json()
@@ -47,7 +47,7 @@ def test_question_funcs():
 def test_similar():
 
     question = {"question": "What is the strongest muscle in the human's bod?", "answer": "The teeth"}
-    client.post("/new", json=question)
+    client.post("/new-question", json=question)
 
     response = client.get("/similar", params={"question": "Best people muscle which one?"})
     assert response.status_code == 200
@@ -55,5 +55,5 @@ def test_similar():
     response = client.get("/similar", params={"question": "What is the best muscle in the people?", "index": "0.8"})
     assert response.status_code == 200
 
-    response = client.delete("/delete", params={"question": "What is the strongest muscle in the human's bod?"})
+    response = client.delete("/delete-question", params={"question": "What is the strongest muscle in the human's bod?"})
     assert response.status_code == 200

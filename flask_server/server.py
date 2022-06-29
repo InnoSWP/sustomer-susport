@@ -4,7 +4,8 @@ import threading
 
 import requests
 from flask import Flask, jsonify, render_template, request
-from flask_wtf.csrf import CSRFProtect
+
+# from flask_wtf.csrf import CSRFProtect
 
 
 class FlaskThread:
