@@ -1,7 +1,6 @@
 import logging
 import threading
-import json
-from enum import Enum, IntEnum
+from enum import IntEnum
 from pydantic import BaseModel
 
 import dotenv
@@ -32,7 +31,7 @@ class DialogEntity:
     question_text: str = ''
     answer_text: str = ''
 
-    state: int = None  # TODO make it enum
+    state: IssueState = IssueState.open  # TODO make it enum
 
 
 T = TypeVar('T')
