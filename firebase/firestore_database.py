@@ -4,9 +4,9 @@ from os import environ
 import firebase_admin
 from firebase_admin import credentials, firestore
 
+from firebase.chat_entry import ChatEntry, ChatMessage
 from firebase.question_entry import QuestionEntry
 from firebase.team_entry import TeamEntry
-from firebase.chat_entry import ChatEntry, ChatMessage
 
 
 class FirestoreDatabase:

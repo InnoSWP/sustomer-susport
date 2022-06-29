@@ -5,11 +5,11 @@ from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from pydantic.class_validators import Union
-from pydantic.fields import Optional, Field
+from pydantic.fields import Field, Optional
 
+from firebase.chat_entry import ChatEntry, ChatMessage
 from firebase.firestore_database import FirestoreDatabase
 from firebase.team_entry import TeamEntry
-from firebase.chat_entry import ChatEntry, ChatMessage
 
 app = FastAPI()
 fd = FirestoreDatabase(app_name="firebase_router")

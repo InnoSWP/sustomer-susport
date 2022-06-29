@@ -1,22 +1,22 @@
+import logging
 import os
-from typing import Callable
+import threading
 
-import dotenv
 import requests
 from flask import Flask, jsonify, render_template, request
-from flask_wtf.csrf import CSRFProtect
-from telegram import Update
+
+# from flask_wtf.csrf import CSRFProtect
 
 
 class FlaskThread:
-    NLP_CHECK = True
-    _callbacks: list[Callable] = list()
+    NLP_CHECK = False
     messages_to_proceed: list[str] = []
 
-    def __init__(self):
+    def __init__(self, conn):
+        self.conn = conn
         self.app = Flask(__name__)
-        csrf = CSRFProtect()
-        csrf.init_app(self.app)
+        # csrf = CSRFProtect()
+        # csrf.init_app(self.app)
         self.app.config['SECRET_KEY'] = os.urandom(12)
 
         self.app.add_url_rule('/', view_func=self.index)
@@ -27,21 +27,35 @@ class FlaskThread:
         self.app.add_url_rule(
             '/messages', view_func=self.messages_get, methods=['GET'])
 
-    def add_callback(self, callback: Callable):
-        self._callbacks.append(callback)
+    def thread2(self):
+        print('Flask T2')
+        while True:
+            res = self.conn.recv()
+            print('Flask recv: ', res)
+            self.received_text_message_from_tg(*res)
 
-    # Invoked by application handler [filters.TEXT]
-    async def flask_callback(self, update: Update, _):
-        chat_id = update.effective_chat.id
+    def received_text_message_from_tg(self, volunteer_chat_id: int, message_text: str):
+        logging.info(f'Received text message from [Volunteer (TG) - {volunteer_chat_id}] : {message_text}')
+        pass  # TODO Received personal text message from volunteer
 
-        msg_text = update.message.text
-        self.messages_to_proceed.append(msg_text)
+    def send_to_telegram(self, client_id, message_text):
+        self.conn.send([
+            client_id,
+            message_text
+        ])
 
-        send_message = self._callbacks[0]
-        await send_message(chat_id, 'Your msg recieved')
+    def flask_run(self):
+        print('Flask T1 (app.run)')
+        return self.app.run()
 
     def run(self):
-        return self.app.run()
+        print('Flask process')
+
+        fs = self.flask_run, self.thread2
+        ps = [threading.Thread(target=f) for f in fs]
+
+        [p.start() for p in ps]
+        [p.join() for p in ps]
 
     @staticmethod
     def index():
@@ -59,6 +73,8 @@ class FlaskThread:
 
     def messages_get(self):
         """
+        Invoked on poll request from Front-end to get all messages (including updated)
+
         /messages [GET]
         """
 
@@ -67,16 +83,10 @@ class FlaskThread:
 
         return result
 
-    async def send_to_tg(self, user_id, text):
-        message_to_send = f'{user_id}: {text}'
-
-        send_message = self._callbacks[0]
-
-        chat_id = dotenv.dotenv_values('flask_server/.env')['TEST_CHAT_ID']
-        await send_message(chat_id, message_to_send)
-
     async def messages_post(self):
         """
+        Invoked on new message from Front-end part
+
         /messages [POST]
         JSON Format:
             {
@@ -87,7 +97,7 @@ class FlaskThread:
 
         data: dict = request.json
 
-        text = data.get('text', None)
+        message_text = data.get('text', None)
         user_id = data.get('user_id', None)
 
         if self.NLP_CHECK:
@@ -95,14 +105,12 @@ class FlaskThread:
             similar_endpoint = '/similar'
             result_url = f'{base_nlp_router_url}{similar_endpoint}'
 
-            resp = requests.get(result_url, {'question': text})
-            print(">>>" * 5)
-            print(resp.url)
-            print("<<<" * 5)
+            resp = requests.get(result_url, {'question': message_text})
 
             if len(resp.json()) != 0:
                 return jsonify(resp.json())
 
-        await self.send_to_tg(user_id, text)
+        # Send to Telegram in case of no answer from NLP_router
+        self.send_to_telegram(user_id, message_text)
 
         return 'niceee'

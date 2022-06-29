@@ -1,36 +1,57 @@
-from typing import Callable
+import logging
+import threading
 
 import dotenv
-from telegram.ext import Application, MessageHandler, filters
+import telegram
+from telegram.ext import MessageHandler, Updater, filters
 
 
 class BotThread:
-    is_alive: bool = True
-    _callbacks: list[Callable] = list()
+    volunteers_id_list = []
 
-    def __init__(self) -> None:
+    def __init__(self, conn) -> None:
+        self.conn = conn
         self._token = dotenv.dotenv_values('telegram_server/.env')['TG_TOKEN']
         self.application = None
 
-    def add_callback(self, callback: Callable):
-        self._callbacks.append(callback)
+    def text_handler(self, update: telegram.Update, context):
+        # TODO implement to handle if it in group or in personal messages
 
-    # @call_decorator
-    async def send_message(self, chat_id: int, message_text: str):
-        await self.application.bot.send_message(
-            chat_id=chat_id,
-            text=message_text,
-        )
+        chat_id = update.effective_chat.id
+        message_text = update.message.text
+
+        self.conn.send([
+            chat_id,
+            message_text
+        ])
 
     def polling(self):
-        self.application = Application.builder().token(self._token).build()
+        print('TG T1 (polling)')
+        updater = Updater(token=self._token, use_context=True)
 
-        builder = self.application.builder()
-        builder.pool_timeout(100000000)
+        text_message_handler = MessageHandler(filters.Filters.text, self.text_handler)
+        updater.dispatcher.add_handler(text_message_handler)
 
-        handler = self._callbacks[0]
+        updater.start_polling()
+        # updater.idle()
 
-        text_handler = MessageHandler(filters.TEXT, handler)
-        self.application.add_handler(text_handler)
+    def thread2(self):
+        print('TG T2')
+        while True:
+            res = self.conn.recv()
+            print('TG Recv: ', res)
+            self.received_message_from_frontend(*res)
 
-        self.application.run_polling()
+    def received_message_from_frontend(self, client_id, message: str):
+        # TODO Main func invoked on receiving message from front-end
+        logging.info(f'TG: Received message from [FRONT-END - {client_id}] : {message}')
+        pass
+
+    def run(self):
+        print('TG process')
+
+        fs = self.polling, self.thread2
+        ps = [threading.Thread(target=f) for f in fs]
+
+        [p.start() for p in ps]
+        [p.join() for p in ps]
