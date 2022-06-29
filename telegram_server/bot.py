@@ -1,22 +1,28 @@
 import logging
 import threading
-import dataclasses
 
 import dotenv
 import telegram
+from dataclasses import dataclass
+from typing import TypeVar, Union
 from telegram.ext import MessageHandler, Updater, filters
 
-@dataclasses.dataclass
+
+@dataclass
 class DialogEntity:
     client_id: int
     volunteer_chat_id: int
 
-    question_text: str
-    answer_text: str
+    question_text: str = ''
+    answer_text: str = ''
 
     state: int = None  # TODO make it enum
 
-def search_by(entities_list, field, value):
+
+T = TypeVar('T')
+
+
+def search_by(entities_list: [T], field, value) -> Union[T, None]:
     l = list(filter(
         lambda d: d.__getattribute__(field) == value,
         entities_list
@@ -26,6 +32,7 @@ def search_by(entities_list, field, value):
         return l[0]
     else:
         return None
+
 
 class BotThread:
     dialogs: [DialogEntity]
@@ -43,13 +50,14 @@ class BotThread:
         # TODO implement to handle if it in group or in personal messages
 
         chat_id = update.effective_chat.id
-        client_id = search_by(self.dialogs, 'volunteer_chat_id', chat_id)
+        dialog: DialogEntity = search_by(self.dialogs, 'volunteer_chat_id', chat_id)
 
-        if client_id:
+        if dialog:
             message_text = update.message.text
+            dialog.answer_text += '\n' + message_text  # TODO Maybe just rewrite string
 
             self.conn.send([
-                client_id,
+                dialog.client_id,
                 message_text
             ])
 
@@ -73,7 +81,15 @@ class BotThread:
 
         # TODO New client
         # TODO Send message to group
+        accepted_chat_id = 12345  # TODO User that accepted to answer
 
+        if True:  # TODO If chained tg user & client
+            d = DialogEntity(
+                client_id=client_id,
+                volunteer_chat_id=accepted_chat_id
+            )
+
+            self.dialogs.append(d)
 
     def run(self):
         fs = self.polling, self.thread2
