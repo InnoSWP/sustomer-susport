@@ -31,7 +31,7 @@ class DialogEntity:
     question_text: str = ''
     answer_text: str = ''
 
-    state: IssueState = IssueState.open  # TODO make it enum
+    state: IssueState = IssueState.open
 
 
 T = TypeVar('T')
@@ -76,7 +76,7 @@ class BotThread:
 
         if dialog:
             message_text = update.message.text
-            dialog.answer_text += '\n' + message_text  # TODO Maybe just rewrite string
+            dialog.answer_text += '\n' + message_text
 
             self.conn.send([
                 dialog.client_id,
