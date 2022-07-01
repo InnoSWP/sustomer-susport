@@ -1,8 +1,6 @@
 import enum
-import functools
 import json
 import logging
-import pprint
 import threading
 from dataclasses import dataclass
 from enum import IntEnum
@@ -48,23 +46,29 @@ class DialogEntity:
 
 
 def get_issue_message_text(dialog: DialogEntity, user_name=None):
+    issue_line = f'*Issue #{dialog.issue_id}*\n\n'
+    question_line = f'Question: _"{dialog.question_text}"_\n\n'
+
     if dialog.state == IssueState.open:
-        return f'*Issue #{dialog.issue_id}*\n\n' \
-               f'{dialog.question_text}\n\n' \
+        return f'{issue_line}' \
+               f'{question_line}' \
                f'status: *OPEN*'
-    elif dialog.state == IssueState.closed:
-        return f'*Issue #{dialog.issue_id}*\n\n' \
-               f'{dialog.question_text}\n\n' \
-               f'Answers:\n{dialog.answer_text}'
-    elif dialog.volunteer_chat_id and dialog.state == IssueState.progress:
-        return f'*Issue #{dialog.issue_id}*\n\n' \
-               f'{dialog.question_text}\n\n' \
+    elif dialog.state == IssueState.progress and dialog.volunteer_chat_id:
+        return f'{issue_line}' \
+               f'{question_line}' \
                f'status: *IN PROGRESS* by {user_name}'
+    elif dialog.state == IssueState.closed:
+        return f'{issue_line}' \
+               f'{question_line}' \
+               f'Answers:\n{dialog.answer_text}\n\n' \
+               f'status: *CLOSED* by {user_name}'
     else:
         return f'LOL why does this happen?'
 
 
 T = TypeVar('T')
+
+
 def search_by(entities_list: [T], field, value) -> Union[T, None]:
     l = list(filter(
         lambda d: d.__getattribute__(field) == value,
@@ -85,12 +89,14 @@ def keyboard_from_dialog(title: str, dialog: DialogEntity, btn_type: CallbackQue
     })
     return get_button_markup([title, btn_data])
 
+
 def prepare_for_markdown_mode(message: str):
     message = message.replace('#', '\#')
     message = message.replace('-', '\-')
     message = message.replace('.', '\.')
 
     return message
+
 
 class BotThread:
     dialogs: [DialogEntity] = []
