@@ -15,15 +15,14 @@ EXPOSE 8080/udp
 # nlp module 
 COPY ./nlp /code/nlp
 COPY ./nlp_router.py /code/nlp_router.py
+# Initialize NLP
+RUN python ./nlp/similarity_providers.py
 
 # firebase 
 # NOW TOKEN MUST BE IN PLACE BEFORE RUNNING PROGRAM
 COPY ./firebase_key.json /code/firebase_key.json
 COPY ./firebase /code/firebase
 
-# TODO move loading datasets before other stuff
-# Initialize NLP
-# RUN python ./nlp_router.py
 
 
 CMD ["python", "nlp_router.py"]
