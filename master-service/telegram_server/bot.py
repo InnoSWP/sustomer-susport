@@ -2,15 +2,13 @@ import json
 import logging
 import pprint
 import threading
+from dataclasses import dataclass
 from enum import IntEnum
-from pydantic import BaseModel
+from typing import TypeVar, Union
 
 import dotenv
 import telegram
-from dataclasses import dataclass
-from typing import TypeVar, Union
 from telegram.ext import MessageHandler, Updater, filters, CallbackQueryHandler
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from .utils import get_button_markup
 
@@ -20,17 +18,12 @@ class IssueState(IntEnum):
     progress = 2
     closed = 3
 
-
-class ButtonData(BaseModel):
-    state: IssueState
-    # state:int
-    issue_id: int
-
-
 @dataclass
 class DialogEntity:
+    issue_id: int
+
     client_id: int
-    volunteer_chat_id: int
+    volunteer_chat_id: Union[int, None] = None
 
     question_text: str = ''
     answer_text: str = ''
@@ -47,7 +40,7 @@ def search_by(entities_list: [T], field, value) -> Union[T, None]:
         entities_list
     ))
 
-    if len(l) == 1:
+    if len(l) >= 1:  # TODO manage it
         return l[0]
     else:
         return None
@@ -55,6 +48,7 @@ def search_by(entities_list: [T], field, value) -> Union[T, None]:
 
 class BotThread:
     dialogs: [DialogEntity] = []
+    issues_count: int = 0
     volunteers_id_list = []
 
     def __init__(self, conn) -> None:
@@ -74,14 +68,14 @@ class BotThread:
             reply_markup=reply_markup
         )
 
-    def text_handler(self, update: telegram.Update, context):
-        group_chat_id = 12345  # TODO move to config
+    def text_handler(self, update: telegram.Update, _):
+        # group_chat_id = 12345  # TODO move to config
 
         chat_id = update.effective_chat.id
         print(chat_id)
 
-        if group_chat_id == chat_id:
-            return  # Message from group/channel
+        # if group_chat_id == chat_id:
+        #     return  # Message from group/channel
 
         dialog: DialogEntity = search_by(self.dialogs, 'volunteer_chat_id', chat_id)
 
@@ -94,25 +88,20 @@ class BotThread:
                 message_text
             ])
 
-    def callback_query_handler(self, update: telegram.Update, _):
+    def callback_query_handler(self, update: telegram.Update, context: telegram.ext.CallbackContext):
         data_dict = json.loads(update.callback_query.data)
-        print(data_dict)
+        pprint.pprint(update.to_dict())
 
-        client_id = data_dict.get('client_id', 1246789)  # TODO
-        question_text = data_dict.get('question_text', 'Lol my question is...')  # TODO
+        issue_id: int = data_dict.get('issue_id', None)
+
+        d: Union[DialogEntity, None] = search_by(self.dialogs, 'issue_id', issue_id)
 
         accepted_chat_id = update.callback_query.from_user.id
+        self.send_text_message(accepted_chat_id, f'You are assigned to the [client {d.client_id}]\n'
+                                                 f'with question:\n\n{d.question_text}')
 
-        self.send_text_message(accepted_chat_id, f'You are assigned to the [client {client_id}]\n'
-                                                 f'with question:\n\n{question_text}')
-
-        d = DialogEntity(
-            client_id=client_id,
-            volunteer_chat_id=accepted_chat_id,
-            question_text=question_text
-        )
-
-        self.dialogs.append(d)
+        d.volunteer_chat_id = accepted_chat_id
+        d.state = IssueState.progress
 
     def polling(self):
         print('TG T1 (polling)')
@@ -136,15 +125,26 @@ class BotThread:
     def received_message_from_frontend(self, client_id: int, message: str):
         logging.info(f'TG: Received message from [FRONT-END - {client_id}] : {message}')
 
-        gpoup_chat_id = -1001412474288
+        group_chat_id = -1001412474288  # TODO move to config or whatever
 
-        data = ButtonData(state=IssueState.open, issue_id=1).json()
-        keyboard = get_button_markup(['Take it', data])
+        self.issues_count += 1
+        new_issue_id = self.issues_count
+
+        d = DialogEntity(
+            issue_id=new_issue_id,
+            client_id=client_id,
+            volunteer_chat_id=None,
+            question_text=message
+        )
+        self.dialogs.append(d)
+
+        btn_data = json.dumps({'issue_id': new_issue_id})
+        keyboard = get_button_markup(['Take it', btn_data])
 
         self.send_text_message(
-            gpoup_chat_id,
+            group_chat_id,
             f'bla bla take it take it\n\n{message}',
-            reply_markup=keyboard
+            reply_markup=keyboard,
         )
 
     def run(self):

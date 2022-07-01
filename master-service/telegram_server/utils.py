@@ -14,7 +14,7 @@ def call_decorator(func):
     return inner
 
 
-def get_button_markup(*buttons):
+def get_button_markup(*buttons: ([str, str])):
     """Get list of reply markup buttons
 
     Args:
