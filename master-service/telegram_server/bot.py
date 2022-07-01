@@ -207,6 +207,9 @@ class BotThread:
             if len(existing_user_dialogs) > 0:
                 return self.send_text_message(group_chat_id, f'{user_name}, you already have active issue')
 
+            if d.state != IssueState.open:
+                return
+
             d.volunteer_chat_id = user_chat_id
             d.state = IssueState.progress
 
