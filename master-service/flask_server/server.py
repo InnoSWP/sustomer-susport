@@ -7,7 +7,7 @@ from flask import Flask, jsonify, render_template, request
 
 
 class FlaskThread:
-    NLP_CHECK = False  # TODO set to true when ready
+    NLP_CHECK = True  # TODO set to true when ready
     answers_to_proceed: {int: str} = dict()  # client_id: text
 
     def __init__(self, conn):
@@ -107,7 +107,7 @@ class FlaskThread:
         message_text = data.get('text', None)
 
         if self.NLP_CHECK:
-            base_nlp_router_url = 'http://nlp-router:8000'
+            base_nlp_router_url = 'http://nlp-router:8080'
             similar_endpoint = '/similar'
             result_url = f'{base_nlp_router_url}{similar_endpoint}'
 
