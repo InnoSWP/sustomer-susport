@@ -1,4 +1,6 @@
+import json
 import logging
+import pprint
 import threading
 from enum import IntEnum
 from pydantic import BaseModel
@@ -7,8 +9,10 @@ import dotenv
 import telegram
 from dataclasses import dataclass
 from typing import TypeVar, Union
-from telegram.ext import MessageHandler, Updater, filters
+from telegram.ext import MessageHandler, Updater, filters, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+from .utils import get_button_markup
 
 
 class IssueState(IntEnum):
@@ -58,16 +62,23 @@ class BotThread:
         self._token = dotenv.dotenv_values('telegram_server/.env')['TG_TOKEN']
         self.updater: Updater = Updater(token=self._token, use_context=True)
 
-    def send_text_message(self, chat_id: int, message: str):
+    def send_text_message(
+            self,
+            chat_id: int,
+            message: str,
+            reply_markup: telegram.ReplyMarkup = None
+    ):
         return self.updater.bot.send_message(
-            chat_id,
-            message
+            chat_id=chat_id,
+            text=message,
+            reply_markup=reply_markup
         )
 
     def text_handler(self, update: telegram.Update, context):
         group_chat_id = 12345  # TODO move to config
 
         chat_id = update.effective_chat.id
+        print(chat_id)
 
         if group_chat_id == chat_id:
             return  # Message from group/channel
@@ -83,22 +94,35 @@ class BotThread:
                 message_text
             ])
 
-        # TODO Just for test
-        data = ButtonData(state=IssueState.open, issue_id=1)
-        update.message.reply_text(
-            "test text", reply_markup=self.get_issue_buttons(data))
+    def callback_query_handler(self, update: telegram.Update, _):
+        data_dict = json.loads(update.callback_query.data)
+        print(data_dict)
 
-    def get_issue_buttons(self, button_data: ButtonData) -> InlineKeyboardMarkup:
-        keyboard = [[InlineKeyboardButton(
-            "hhahah", callback_data=button_data.json())]]
-        return InlineKeyboardMarkup(keyboard)
+        client_id = data_dict.get('client_id', 1246789)  # TODO
+        question_text = data_dict.get('question_text', 'Lol my question is...')  # TODO
+
+        accepted_chat_id = update.callback_query.from_user.id
+
+        self.send_text_message(accepted_chat_id, f'You are assigned to the [client {client_id}]\n'
+                                                 f'with question:\n\n{question_text}')
+
+        d = DialogEntity(
+            client_id=client_id,
+            volunteer_chat_id=accepted_chat_id,
+            question_text=question_text
+        )
+
+        self.dialogs.append(d)
 
     def polling(self):
         print('TG T1 (polling)')
 
-        text_message_handler = MessageHandler(
-            filters.Filters.text, self.text_handler)
-        self.updater.dispatcher.add_handler(text_message_handler)
+        handlers = [
+            MessageHandler(filters.Filters.text, self.text_handler),
+            CallbackQueryHandler(self.callback_query_handler),
+        ]
+
+        [self.updater.dispatcher.add_handler(i) for i in handlers]
 
         self.updater.start_polling()
         # updater.idle()
@@ -112,20 +136,16 @@ class BotThread:
     def received_message_from_frontend(self, client_id: int, message: str):
         logging.info(f'TG: Received message from [FRONT-END - {client_id}] : {message}')
 
-        # TODO New client
-        # TODO Send message to group
+        gpoup_chat_id = -1001412474288
 
-        if True:  # TODO If chained tg user & client
-            accepted_chat_id = 325805942  # TODO [TEST] User that accepted to answer
+        data = ButtonData(state=IssueState.open, issue_id=1).json()
+        keyboard = get_button_markup(['Take it', data])
 
-            self.send_text_message(accepted_chat_id, f'You are assigned to the question:\n\n{message}')
-
-            d = DialogEntity(
-                client_id=client_id,
-                volunteer_chat_id=accepted_chat_id
-            )
-
-            self.dialogs.append(d)
+        self.send_text_message(
+            gpoup_chat_id,
+            f'bla bla take it take it\n\n{message}',
+            reply_markup=keyboard
+        )
 
     def run(self):
         fs = self.polling, self.thread2

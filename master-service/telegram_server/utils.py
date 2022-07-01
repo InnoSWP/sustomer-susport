@@ -1,6 +1,8 @@
 import logging
 from functools import wraps
 
+import telegram
+
 
 def call_decorator(func):
     @wraps(func)
@@ -10,3 +12,17 @@ def call_decorator(func):
         return func(*args, **kwargs)
 
     return inner
+
+
+def get_button_markup(*buttons):
+    """Get list of reply markup buttons
+
+    Args:
+        buttons ([title, data]): each button represented by tuple
+
+    Returns:
+        InlineKeyboardMarkup: Description
+    """
+    x = lambda t: telegram.InlineKeyboardButton(t[0], callback_data=t[1])
+
+    return telegram.InlineKeyboardMarkup.from_row(list(map(x, buttons)))
