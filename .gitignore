@@ -2,6 +2,7 @@ sustomer-susport-private-key.json
 .env
 .idea/
 .vim/
+**/firebase_key.json
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
