@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  master-router:
+    build: ./master-service
+    volumes:
+      - ./master-service:/code
+    ports:
+      - 5000:5000
