@@ -7,7 +7,7 @@ from flask import Flask, jsonify, render_template, request
 
 
 class FlaskThread:
-    NLP_CHECK = True  # TODO set to true when ready
+    NLP_CHECK = False  # TODO set to true when ready
     answers_to_proceed: {int: str} = dict()  # client_id: text
 
     def __init__(self, conn):
