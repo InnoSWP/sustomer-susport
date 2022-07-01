@@ -1,0 +1,6 @@
+ pip install requests
+ pip install flask
+ pip install pydantic 
+ pip install python-dotenv
+ pip install python-telegram-bot
+ pip install flask-wtf
