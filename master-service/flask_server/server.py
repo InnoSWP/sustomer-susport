@@ -45,7 +45,7 @@ class FlaskThread:
 
     def flask_run(self):
         print('Flask T1 (app.run)')
-        return self.app.run()
+        return self.app.run(host="0.0.0.0", port="5000")
 
     def run(self):
         fs = self.flask_run, self.thread2
