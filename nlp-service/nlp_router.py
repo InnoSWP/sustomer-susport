@@ -88,7 +88,7 @@ def similar_questions(question: str, index: float = SIMILARITY_CONST):
 
 
 def run_router():
-    uvicorn.run(app, port=8080)
+    uvicorn.run(app=app, host="0.0.0.0", port=8080)
 
 
 if __name__ == "__main__":
