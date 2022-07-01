@@ -1,9 +1,18 @@
 version: '3'
 
 services:
+  nlp-router:
+    build: ./nlp-service
+    volumes:
+      - ./nlp-service:/code
+    ports:
+      - 8080:8080
+
   master-router:
     build: ./master-service
     volumes:
       - ./master-service:/code
     ports:
       - 5000:5000
+    depends_on:
+      - nlp-router
