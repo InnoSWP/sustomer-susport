@@ -89,7 +89,7 @@ class FlaskThread:
         else:
             return jsonify(None)
 
-    async def messages_post(self):
+    def messages_post(self):
         """
         Invoked on new message from Front-end part
 
@@ -107,7 +107,7 @@ class FlaskThread:
         message_text = data.get('text', None)
 
         if self.NLP_CHECK:
-            base_nlp_router_url = 'http://127.0.0.1:8000'
+            base_nlp_router_url = 'http://nlp-router:8000'
             similar_endpoint = '/similar'
             result_url = f'{base_nlp_router_url}{similar_endpoint}'
 
