@@ -15,6 +15,6 @@ services:
       - ./master-service:/code
     ports:
       - 5000:5000
-    depends_on:
-      - nlp-router
+    # depends_on:
+    #   - nlp-router
     env_file: .env
