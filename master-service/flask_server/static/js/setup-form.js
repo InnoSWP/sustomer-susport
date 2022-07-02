@@ -9,6 +9,21 @@ function getLocalChat() {
 function storeChat(chat) {
     window.localStorage.setItem("ChatHistory", JSON.stringify(chat));
 }
+function sendMessage(msg, handleSimilarQuestions) {
+    const parameters = {
+        url: "/messages",
+        onSuccess: function (value) {
+            value.text().then((text) => {
+                if (value.ok) {
+                    handleSimilarQuestions(text);
+                }
+            });
+        },
+        onError: handler.requestFailure,
+        request: Object.assign(Object.assign({}, core.defaultRequest), { method: "POST", body: JSON.stringify(msg) }),
+    };
+    core.basicFetch(parameters);
+}
 function updateChatComposition(message, container) {
     const history = getLocalChat();
     const newHistory = handler.addMessage(history, message);
@@ -17,7 +32,7 @@ function updateChatComposition(message, container) {
 }
 function submitForm(form, container) {
     const value = handler.form2text(form);
-    handler.sendMessage({
+    sendMessage({
         text: value,
         user_id: 1337,
     }, (text) => {
@@ -33,6 +48,11 @@ function submitForm(form, container) {
         author: handler.userIsAuthor,
         text: value,
     }, container);
+}
+function appendAnswer(container, text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    container.appendChild(div);
 }
 function getUpdatesForMessages(container) {
     function onSuccess(response) {

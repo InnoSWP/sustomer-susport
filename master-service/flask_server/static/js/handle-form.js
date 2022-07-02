@@ -5,27 +5,10 @@ function requestFailure(error) {
 }
 function form2text(form) {
     const el = form.querySelector("#question_text");
+    if (el == null) {
+        return "";
+    }
     return core.html2text(el);
-}
-function sendMessage(msg, handleSimilarQuestions) {
-    const parameters = {
-        url: "/messages",
-        onSuccess: function (value) {
-            value.text().then((text) => {
-                if (value.ok) {
-                    handleSimilarQuestions(text);
-                }
-            });
-        },
-        onError: requestFailure,
-        request: Object.assign(Object.assign({}, core.defaultRequest), { method: "POST", body: JSON.stringify(msg) }),
-    };
-    core.basicFetch(parameters);
-}
-function appendAnswer(container, text) {
-    const div = document.createElement("div");
-    div.textContent = text;
-    container.appendChild(div);
 }
 function addMessage(chat, message) {
     chat.push(message);
@@ -52,9 +35,11 @@ function deleteChildren(container) {
     for (let i = container.children.length; i > 0; i--) {
         container.removeChild(container.children[0]);
     }
+    return container;
 }
 function addChildren(container, children) {
     children.forEach((child) => container.appendChild(child));
+    return container;
 }
 function displayChat(chat, container) {
     const chatElementsHtml = chat.map((value) => {
@@ -62,6 +47,7 @@ function displayChat(chat, container) {
     });
     deleteChildren(container);
     addChildren(container, chatElementsHtml);
+    return container;
 }
-export { deleteChildren, addChildren, displayChat, requestFailure, form2text, sendMessage, addMessage, similarQuestionLabel, userIsAuthor, };
+export { deleteChildren, addChildren, displayChat, requestFailure, form2text, addMessage, displayMessage, similarQuestionLabel, userIsAuthor, };
 //# sourceMappingURL=handle-form.js.map
