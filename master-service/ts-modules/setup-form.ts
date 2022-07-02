@@ -46,7 +46,7 @@ function updateChatComposition(
 
 function submitForm(form: HTMLElement, container: HTMLElement): void {
   const value: string = handler.form2text(form);
-  handler.sendMessage(
+  sendMessage(
     {
       text: value,
       user_id: 1337,
