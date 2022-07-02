@@ -1,14 +1,15 @@
+import distutils.util
 import logging
 import os
 import threading
 
 import requests
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, make_response
 
+USE_NLP_ROUTER = os.getenv('USE_NLP_ROUTER', 'True').lower() == 'true'
 
 class FlaskThread:
-    NLP_CHECK = True  # TODO set to true when ready
-    answers_to_proceed: {int: str} = dict()  # client_id: text
+    answers_to_proceed: {int: list[str]} = dict()
 
     def __init__(self, conn):
         self.conn = conn
@@ -34,7 +35,10 @@ class FlaskThread:
     def received_text_message_from_tg(self, client_id: int, message_text: str):
         logging.info(f'Received text message to [Client - {client_id}] : {message_text}')
 
-        self.answers_to_proceed[client_id] = message_text
+        if client_id in self.answers_to_proceed:
+            self.answers_to_proceed[client_id].append(message_text)
+        else:
+            self.answers_to_proceed[client_id] = [message_text, ]
         print(self.answers_to_proceed)
 
     def send_to_telegram(self, client_id: int, message_text: str):
@@ -45,7 +49,10 @@ class FlaskThread:
 
     def flask_run(self):
         print('Flask T1 (app.run)')
-        return self.app.run(host="0.0.0.0", port="5000")
+        return self.app.run(
+            host="0.0.0.0",
+            port=5000
+        )
 
     def run(self):
         fs = self.flask_run, self.thread2
@@ -67,8 +74,13 @@ class FlaskThread:
         /frame, [GET]
         """
 
-        # TODO Return id cookies
-        return render_template('form.html')
+        import random
+        client_id = random.randint(10 ** 5, 10 ** 6)
+
+        response = make_response(render_template('form.html'))
+        response.set_cookie('userID', str(client_id))
+
+        return response
 
     def messages_get(self):
         """
@@ -77,7 +89,7 @@ class FlaskThread:
         /messages [GET]
         """
 
-        client_id: int = 0  # TODO get from cookies
+        client_id: int = int(request.cookies.get('userID'))
 
         answer = self.answers_to_proceed.get(client_id, None)
         print('answer', answer)
@@ -103,10 +115,10 @@ class FlaskThread:
 
         data: dict = request.json
 
-        client_id: int = 0  # TODO get from cookies
+        client_id: int = int(request.cookies.get('userID'))
         message_text = data.get('text', None)
 
-        if self.NLP_CHECK:
+        if USE_NLP_ROUTER:
             base_nlp_router_url = 'http://nlp-router:8080'
             similar_endpoint = '/similar'
             result_url = f'{base_nlp_router_url}{similar_endpoint}'

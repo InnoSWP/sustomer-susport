@@ -1,50 +1,19 @@
+import os
 import json
 import logging
-import pprint
 import threading
-from dataclasses import dataclass
-from enum import IntEnum
-from typing import TypeVar, Union
+from typing import Optional
 
-import dotenv
 import telegram
+from telegram.ext import MessageHandler
 from telegram.ext import MessageHandler, Updater, filters, CallbackQueryHandler
 
-from .utils import get_button_markup
 
+from .utils import DialogEntity, IssueState, prepare_for_markdown_mode, \
+    search_by, get_issue_message_text, keyboard_from_dialog, CallbackQueryType
 
-class IssueState(IntEnum):
-    open = 1
-    progress = 2
-    closed = 3
-
-@dataclass
-class DialogEntity:
-    issue_id: int
-
-    client_id: int
-    volunteer_chat_id: Union[int, None] = None
-
-    question_text: str = ''
-    answer_text: str = ''
-
-    state: IssueState = IssueState.open
-
-
-T = TypeVar('T')
-
-
-def search_by(entities_list: [T], field, value) -> Union[T, None]:
-    l = list(filter(
-        lambda d: d.__getattribute__(field) == value,
-        entities_list
-    ))
-
-    if len(l) >= 1:  # TODO manage it
-        return l[0]
-    else:
-        return None
-
+TG_TOKEN = os.getenv('TG_TOKEN', None)
+GROUP_CHAT_ID = os.getenv('GROUP_CHAT_ID', None)
 
 class BotThread:
     dialogs: [DialogEntity] = []
@@ -53,55 +22,147 @@ class BotThread:
 
     def __init__(self, conn) -> None:
         self.conn = conn
-        self._token = dotenv.dotenv_values('telegram_server/.env')['TG_TOKEN']
-        self.updater: Updater = Updater(token=self._token, use_context=True)
+        self.updater: Updater = Updater(token=TG_TOKEN, use_context=True)
+
+    def existing_dialogs(self, for_chat_id):
+        return list(filter(
+            lambda d: d.volunteer_chat_id == for_chat_id and d.state == IssueState.progress,
+            self.dialogs
+        ))
 
     def send_text_message(
             self,
             chat_id: int,
             message: str,
-            reply_markup: telegram.ReplyMarkup = None
+            reply_markup: telegram.ReplyMarkup = None,
+            is_markdown=False
     ):
-        return self.updater.bot.send_message(
-            chat_id=chat_id,
-            text=message,
-            reply_markup=reply_markup
+        try:
+            return self.updater.bot.send_message(
+                chat_id=chat_id,
+                text=prepare_for_markdown_mode(message) if is_markdown else message,
+                reply_markup=reply_markup,
+                parse_mode=telegram.ParseMode.MARKDOWN_V2 if is_markdown else None
+            )
+        except Exception:
+            return self.updater.bot.send_message(
+                chat_id=chat_id,
+                text=message,
+                reply_markup=reply_markup,
+            )
+
+    def received_message_from_frontend(self, client_id: int, message: str):
+        logging.info(f'TG: Received message from [FRONT-END - {client_id}] : {message}')
+
+        self.issues_count += 1
+        new_issue_id = self.issues_count
+
+        d = DialogEntity(
+            issue_id=new_issue_id,
+            client_id=client_id,
+            volunteer_chat_id=None,
+            question_text=message
+        )
+        self.dialogs.append(d)
+
+        message: telegram.Message = self.send_text_message(
+            GROUP_CHAT_ID,
+            message=get_issue_message_text(d),
+            reply_markup=keyboard_from_dialog('Take request', d, CallbackQueryType.ASSIGN, None),
+            is_markdown=True
         )
 
-    def text_handler(self, update: telegram.Update, _):
-        # group_chat_id = 12345  # TODO move to config
+        d.issue_message_id = message.message_id
 
+    def text_handler(self, update: telegram.Update, _):
         chat_id = update.effective_chat.id
         print(chat_id)
 
-        # if group_chat_id == chat_id:
-        #     return  # Message from group/channel
+        print(self.dialogs)
 
-        dialog: DialogEntity = search_by(self.dialogs, 'volunteer_chat_id', chat_id)
+        dialogs: list[DialogEntity] = self.existing_dialogs(chat_id)
 
-        if dialog:
+        if len(dialogs) > 0:
+            dialog = dialogs[-1]
+
             message_text = update.message.text
-            dialog.answer_text += '\n' + message_text
+            dialog.answer_text += f'- {message_text}\n'
 
             self.conn.send([
                 dialog.client_id,
                 message_text
             ])
+        else:
+            # self.send_text_message(chat_id, 'You have no active issues')
+            pass
 
     def callback_query_handler(self, update: telegram.Update, context: telegram.ext.CallbackContext):
         data_dict = json.loads(update.callback_query.data)
-        pprint.pprint(update.to_dict())
+        # pprint.pprint(update.to_dict())
 
         issue_id: int = data_dict.get('issue_id', None)
+        btn_type = data_dict.get('btn_type', None)
 
-        d: Union[DialogEntity, None] = search_by(self.dialogs, 'issue_id', issue_id)
+        print(self.dialogs, issue_id, btn_type)
 
-        accepted_chat_id = update.callback_query.from_user.id
-        self.send_text_message(accepted_chat_id, f'You are assigned to the [client {d.client_id}]\n'
-                                                 f'with question:\n\n{d.question_text}')
+        d: Optional[DialogEntity] = search_by(self.dialogs, 'issue_id', issue_id)
 
-        d.volunteer_chat_id = accepted_chat_id
-        d.state = IssueState.progress
+        if not d:
+            return
+
+        user_chat_id = update.callback_query.from_user.id
+        message_id = update.effective_message.message_id
+        user_name = update.callback_query.from_user.name
+
+        existing_user_dialogs = self.existing_dialogs(user_chat_id)
+
+        get_edit_text = lambda d: prepare_for_markdown_mode(
+            get_issue_message_text(d, user_name)
+        )
+
+        if int(btn_type) == CallbackQueryType.ASSIGN:
+            group_chat_id = update.effective_chat.id
+
+            if len(existing_user_dialogs) > 0:
+                return self.send_text_message(group_chat_id, f'{user_name}, you already have active issue')
+
+            if d.state != IssueState.open:
+                return
+
+            d.volunteer_chat_id = user_chat_id
+            d.state = IssueState.progress
+
+            message_text = f'You are assigned to the [client {d.client_id}]\n' \
+                           f'with question:\n\n{d.question_text}'
+
+            update.effective_message.edit_text(
+                text=get_edit_text(d),
+                parse_mode=telegram.ParseMode.MARKDOWN_V2
+            )
+
+            self.send_text_message(
+                user_chat_id,
+                message_text,
+                reply_markup=keyboard_from_dialog('Mark as completed', d, CallbackQueryType.CLOSE, message_id)
+            )
+        elif int(btn_type) == CallbackQueryType.CLOSE:
+            if d.state != IssueState.progress:
+                return
+
+            d.state = IssueState.closed
+
+            self.send_text_message(
+                chat_id=user_chat_id,
+                message=get_issue_message_text(d, user_name),
+                is_markdown=True
+            )
+
+            context.bot.edit_message_text(
+                text=get_edit_text(d),
+                chat_id=GROUP_CHAT_ID,
+                message_id=d.issue_message_id,
+                parse_mode=telegram.ParseMode.MARKDOWN_V2
+            )
 
     def polling(self):
         print('TG T1 (polling)')
@@ -121,31 +182,6 @@ class BotThread:
         while True:
             res = self.conn.recv()
             self.received_message_from_frontend(*res)
-
-    def received_message_from_frontend(self, client_id: int, message: str):
-        logging.info(f'TG: Received message from [FRONT-END - {client_id}] : {message}')
-
-        group_chat_id = -1001412474288  # TODO move to config or whatever
-
-        self.issues_count += 1
-        new_issue_id = self.issues_count
-
-        d = DialogEntity(
-            issue_id=new_issue_id,
-            client_id=client_id,
-            volunteer_chat_id=None,
-            question_text=message
-        )
-        self.dialogs.append(d)
-
-        btn_data = json.dumps({'issue_id': new_issue_id})
-        keyboard = get_button_markup(['Take it', btn_data])
-
-        self.send_text_message(
-            group_chat_id,
-            f'bla bla take it take it\n\n{message}',
-            reply_markup=keyboard,
-        )
 
     def run(self):
         fs = self.polling, self.thread2
