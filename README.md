@@ -24,7 +24,15 @@ For that purpose we provide
 
 ## Project installation
 
-## How to run
+### Using docker compose
+- go to the project root
+```docker compose up```
+- wait for initial building 
+- to stop
+- press `^C` for a few times or
+```docker compose down```
+
+## without docker compose 
 you need 
 - `python` ~= 3.10
 - `pip` corresponding to your python version
