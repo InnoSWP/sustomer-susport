@@ -2,7 +2,8 @@ version: '3'
 
 services:
   nlp-router:
-    build: ./nlp-service
+    # build: ./nlp-service
+    image: dsnfljasdfjlajsdfjl/nlp-service:nlp-service
     volumes:
       - ./nlp-service:/code
     ports:
@@ -10,7 +11,8 @@ services:
     env_file: .env
 
   master-router:
-    build: ./master-service
+    # build: ./master-service
+    image: dsnfljasdfjlajsdfjl/master-service:master-service
     volumes:
       - ./master-service:/code
     ports:
