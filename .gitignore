@@ -1,6 +1,7 @@
 sustomer-susport-private-key.json
 .env
 .idea/
+**/node_modules/
 .vim/
 **/firebase_key.json
 # Byte-compiled / optimized / DLL files
