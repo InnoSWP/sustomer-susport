@@ -99,7 +99,8 @@ class FlaskThread:
 
             return jsonify([answer])
         else:
-            return jsonify(None)
+            # I would to kill guy that returned None!
+            return jsonify([])
 
     def messages_post(self):
         """
@@ -119,16 +120,19 @@ class FlaskThread:
         message_text = data.get('text', None)
 
         if USE_NLP_ROUTER:
-            base_nlp_router_url = 'http://nlp-router:8080'
+            base_nlp_router_url = os.getenv("NLP_ROUTER_URL", "http://127.0.0.1:8080")
             similar_endpoint = '/similar'
             result_url = f'{base_nlp_router_url}{similar_endpoint}'
 
             resp = requests.get(result_url, {'question': message_text})
 
-            if len(resp.json()) != 0:
-                return jsonify(resp.json())
-
+            rjs : dict = resp.json()
+            logging.warn(str(rjs))
+            # if len(resp.json()) != 0:
+            if rjs.get("detail") != "Not Found" and rjs != None:
+                # TODO remove this crunches
+                return jsonify(rjs)
         # Send to Telegram in case of no answer from NLP_router
         self.send_to_telegram(client_id, message_text)
 
-        return 'niceee'
+        return "[]"
