@@ -1,14 +1,17 @@
 {% extends 'base.html' %}
 {% block title %}form{%endblock%}
 {% block body %}
-<h1>Simple form</h1>
-<form id="ask_question_form" class="vertical-flex" action="" method=""> 
-    <label for="question_text">Question</label>
-		<textarea class="text-left" type="text" id="question_text" name="question_text"></textarea>
-		<button type="button" value="submit">submit</button>
-		<button type="button" value="refresh">refresh responses</button>
+
+<h1 class="page__title">Ask you question here please</h1>
+<form id="ask_question_form" class="form" action="" method=""> 
+	<div data-length="0" class="textarea__wrap">
+		<textarea maxlength="225" oninput="event.target.parentElement.dataset.length = event.target.value.length" placeholder="Hint text" class="text-left form__textarea" type="text" id="question_text" name="question_text"></textarea>
+	</div>
+	<button class="form__button" type="button" value="submit">submit</button>
+	<button class="form__button form__button_action_refresh type="button" value="refresh">refresh responses</button>
 </form>
 <script type="module" src="/static/js/setup-form.js"> </script>
 <link rel="stylesheet" href="/static/css/chat.css">
 <div id="message-history"></div>
+
 {%endblock%}
