@@ -78,7 +78,7 @@ class BotThread:
         chat_id = update.effective_chat.id
         print(chat_id)
 
-        print(self.dialogs)
+        # print(self.dialogs)
 
         dialogs: list[DialogEntity] = self.existing_dialogs(chat_id)
 

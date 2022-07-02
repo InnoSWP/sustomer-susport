@@ -1,3 +1,4 @@
+import logging
 import os
 import uvicorn
 from fastapi import FastAPI, Response
@@ -75,6 +76,9 @@ def similar_questions(question: str, index: float = SIMILARITY_CONST):
     :param question : question text
     :param index : similarity threshold
     """
+
+    import time
+    cur = time.time()
     cur_questions = fd.questions()
 
     question_key = sus_sim_provider.encode_question(question)
@@ -86,6 +90,10 @@ def similar_questions(question: str, index: float = SIMILARITY_CONST):
                 top_similar.append({"question": q.question, "answer": q.answer, "index": cur_sim})
         except NameError:
             pass
+
+    cur2 = time.time()
+
+    logging.warning(f'Similarity run time: {cur2 - cur}')
 
     return top_similar
 
