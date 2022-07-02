@@ -58,7 +58,7 @@ function displayChat(chat: ChatHistory, container: HTMLElement): HTMLElement {
   });
   deleteChildren(container);
   addChildren(container, chatElementsHtml);
-	return container
+  return container;
 }
 
 // for test purposes

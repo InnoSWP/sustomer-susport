@@ -1,6 +1,5 @@
-import * as core from "./core.js"
-import * as handler from "./handle-form.js"
-
+import * as core from "./core.js";
+import * as handler from "./handle-form.js";
 
 function getLocalChat(): handler.ChatHistory {
   const chat = window.localStorage.getItem("ChatHistory");
