@@ -74,6 +74,11 @@ html, body {
 	color: #3B4256;
 }
 
+.form__button_action_clear {
+	background: #BB44FF;
+	color: #3B4256;
+}
+
 .page {
 	max-width: 520px;
 	padding: 60px 35px;
