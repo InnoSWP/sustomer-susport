@@ -1,12 +1,43 @@
-.user-message{
-	color: green;
+#message-history {
+	margin-top: 45px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.user-message {
+	display: block;
+	max-width: 250px;
+	background: #0048D9;
+	border-radius: 15px;
+	border-bottom-left-radius: 5px;
+	color: white;
+	font-size: 16px;
+	line-height: 150%;
+	padding: 15px;
 }
 .similar-question{
-	color: cyan;
-	text-align: right;
+	align-self: flex-end;
+	display: block;
+	max-width: 250px;
+	background: #82FF9E;
+	border-radius: 15px;
+	border-bottom-right-radius: 5px;
+	color: #3B4256;
+	font-size: 16px;
+	line-height: 150%;
+	padding: 15px;
 }
 
 .others-message{
-	color: coral;
-	text-align: right;
+	align-self: flex-end;
+	display: block;
+	max-width: 250px;
+	background: #F8FAFC;
+	border-radius: 15px;
+	border-bottom-right-radius: 5px;
+	color: #3B4256;
+	font-size: 16px;
+	line-height: 150%;
+	padding: 15px;
 }
