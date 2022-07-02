@@ -112,7 +112,7 @@ class BotThread:
 
         user_chat_id = update.callback_query.from_user.id
         message_id = update.effective_message.message_id
-        user_name = update.callback_query.from_user.name
+        user_name = update.callback_query.from_user.name.replace("_", "\\_")
 
         existing_user_dialogs = self.existing_dialogs(user_chat_id)
 
