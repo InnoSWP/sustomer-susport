@@ -107,7 +107,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-master-service/telegram_server/.env
+.env
 .venv
 env/
 venv/

@@ -1,3 +1,4 @@
+import os
 import uvicorn
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
@@ -10,6 +11,8 @@ from nlp.similarity_providers import sus_sim_provider
 SIMILARITY_CONST = 0.7
 app = FastAPI()
 fd = FirestoreDatabase(app_name="nlp_router")
+
+USE_NLP_ROUTER = os.getenv('USE_NLP_ROUTER', 'True').lower() == 'true'
 
 
 class QuestionItem(BaseModel):
@@ -92,4 +95,7 @@ def run_router():
 
 
 if __name__ == "__main__":
-    run_router()
+    if USE_NLP_ROUTER:
+        run_router()
+    else:
+        print('USE_NLP_ROUTER = False')

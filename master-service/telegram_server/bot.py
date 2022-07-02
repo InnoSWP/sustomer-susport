@@ -1,9 +1,9 @@
+import os
 import json
 import logging
 import threading
 from typing import Optional
 
-import dotenv
 import telegram
 from telegram.ext import MessageHandler
 from telegram.ext import MessageHandler, Updater, filters, CallbackQueryHandler
@@ -12,17 +12,17 @@ from telegram.ext import MessageHandler, Updater, filters, CallbackQueryHandler
 from .utils import DialogEntity, IssueState, prepare_for_markdown_mode, \
     search_by, get_issue_message_text, keyboard_from_dialog, CallbackQueryType
 
+TG_TOKEN = os.getenv('TG_TOKEN', None)
+GROUP_CHAT_ID = os.getenv('GROUP_CHAT_ID', None)
 
 class BotThread:
     dialogs: [DialogEntity] = []
     issues_count: int = 0
     volunteers_id_list = []
-    group_chat_id = -1001412474288  # TODO move to config or whatever
 
     def __init__(self, conn) -> None:
         self.conn = conn
-        self._token = dotenv.dotenv_values('telegram_server/.env')['TG_TOKEN']
-        self.updater: Updater = Updater(token=self._token, use_context=True)
+        self.updater: Updater = Updater(token=TG_TOKEN, use_context=True)
 
     def existing_dialogs(self, for_chat_id):
         return list(filter(
@@ -66,7 +66,7 @@ class BotThread:
         self.dialogs.append(d)
 
         message: telegram.Message = self.send_text_message(
-            self.group_chat_id,
+            GROUP_CHAT_ID,
             message=get_issue_message_text(d),
             reply_markup=keyboard_from_dialog('Take request', d, CallbackQueryType.ASSIGN, None),
             is_markdown=True
@@ -80,7 +80,7 @@ class BotThread:
 
         print(self.dialogs)
 
-        dialogs = self.existing_dialogs(chat_id)
+        dialogs: list[DialogEntity] = self.existing_dialogs(chat_id)
 
         if len(dialogs) > 0:
             dialog = dialogs[-1]
@@ -106,6 +106,10 @@ class BotThread:
         print(self.dialogs, issue_id, btn_type)
 
         d: Optional[DialogEntity] = search_by(self.dialogs, 'issue_id', issue_id)
+
+        if not d:
+            return
+
         user_chat_id = update.callback_query.from_user.id
         message_id = update.effective_message.message_id
         user_name = update.callback_query.from_user.name
@@ -155,7 +159,7 @@ class BotThread:
 
             context.bot.edit_message_text(
                 text=get_edit_text(d),
-                chat_id=self.group_chat_id,
+                chat_id=GROUP_CHAT_ID,
                 message_id=d.issue_message_id,
                 parse_mode=telegram.ParseMode.MARKDOWN_V2
             )
