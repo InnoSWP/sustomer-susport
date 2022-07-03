@@ -51,13 +51,14 @@ function submitForm(form: HTMLElement, container: HTMLElement): void {
       user_id: 1337,
     },
     (text: string) => {
+			console.log(text)
       const body: Array<{ answer: string; question: string }> =
         JSON.parse(text);
       body.forEach((similarQuestion) => {
         return updateChatComposition(
           {
             author: handler.similarQuestionLabel,
-            text: `${similarQuestion.question}   ?=>  ${similarQuestion.answer}`,
+            text: `${similarQuestion.question}:\t\t\n${similarQuestion.answer}`,
           },
           container
         );
@@ -131,6 +132,6 @@ function setup(): void {
 
 function pollingUpdates(container: HTMLElement) {
   getUpdatesForMessages(container);
-  setTimeout(pollingUpdates, 1000);
+  setTimeout(() => pollingUpdates(container), 1000);
 }
 setup();

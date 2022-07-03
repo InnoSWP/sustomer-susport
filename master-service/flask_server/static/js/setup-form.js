@@ -36,11 +36,12 @@ function submitForm(form, container) {
         text: value,
         user_id: 1337,
     }, (text) => {
+        console.log(text);
         const body = JSON.parse(text);
         body.forEach((similarQuestion) => {
             return updateChatComposition({
                 author: handler.similarQuestionLabel,
-                text: `${similarQuestion.question}   ?=>  ${similarQuestion.answer}`,
+                text: `${similarQuestion.question}:\t\t${similarQuestion.answer}`,
             }, container);
         });
     });
@@ -94,11 +95,10 @@ function setup() {
         localStorage.clear();
         handler.deleteChildren(container);
     };
-    pollingUpdates(container);
 }
 function pollingUpdates(container) {
     getUpdatesForMessages(container);
-    setTimeout(pollingUpdates, 1000);
+    setTimeout(() => pollingUpdates(container), 1000);
 }
 setup();
 //# sourceMappingURL=setup-form.js.map
