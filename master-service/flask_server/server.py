@@ -91,13 +91,13 @@ class FlaskThread:
 
         client_id: int = int(request.cookies.get('userID'))
 
-        answer = self.answers_to_proceed.get(client_id, None)
-        print('answer', answer)
+        answers = self.answers_to_proceed.get(client_id, None)
+        print('answers', answers)
 
-        if answer:
+        if answers:
             self.answers_to_proceed[client_id] = None
 
-            return jsonify(answer)
+            return jsonify(answers)
         else:
             # I would to kill guy that returned None!
             return jsonify([])
@@ -123,6 +123,7 @@ class FlaskThread:
             result_url = f'{NLP_ROUTER_URL}/similar'
 
             resp = requests.get(result_url, {'question': message_text})
+            logging.info(f'Made request to NLP: {resp.url}')
 
             most_similar: dict = resp.json()
 
