@@ -51,13 +51,14 @@ function submitForm(form: HTMLElement, container: HTMLElement): void {
       user_id: 1337,
     },
     (text: string) => {
+			console.log(text)
       const body: Array<{ answer: string; question: string }> =
         JSON.parse(text);
       body.forEach((similarQuestion) => {
         return updateChatComposition(
           {
             author: handler.similarQuestionLabel,
-            text: `${similarQuestion.question}   ?=>  ${similarQuestion.answer}`,
+            text: `${similarQuestion.question}:\t\t\n${similarQuestion.answer}`,
           },
           container
         );
@@ -114,9 +115,23 @@ function setup(): void {
   const refreshButton = <HTMLButtonElement>(
     form.querySelector("button[value=refresh]")
   );
-  let container = <HTMLElement>document.querySelector("div#message-history");
+  const container = <HTMLElement>document.querySelector("div#message-history");
   document.body.appendChild(container);
   refreshButton.onclick = () => getUpdatesForMessages(container);
+  getUpdatesForMessages(container);
+
+  const clearButton = document.querySelector(
+    "button[value=clear]"
+  ) as HTMLButtonElement;
+  clearButton.onclick = () => {
+    localStorage.clear();
+    handler.deleteChildren(container);
+  };
+  pollingUpdates(container);
 }
 
+function pollingUpdates(container: HTMLElement) {
+  getUpdatesForMessages(container);
+  setTimeout(() => pollingUpdates(container), 1000);
+}
 setup();

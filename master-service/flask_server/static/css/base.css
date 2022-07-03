@@ -95,3 +95,31 @@ html, body {
 	margin-top: 0;
 	margin-bottom: 25px;
 }
+html, body {
+	margin: 0;
+	height: 100%;
+}
+
+.index__iframe_container {
+	overflow: hidden;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	/* height:10000px; */
+	height: 100%;
+	width: 100%;
+}
+
+.embedded-iframe {
+	 border: 0;
+   height: 100%;
+   left: 0;
+   position: absolute;
+   top: 0;
+   width: 100%;
+	/* width:100%; */
+	/* height: 100%; */
+	/* flex: 1; */
+	/* border: 0; */
+}
