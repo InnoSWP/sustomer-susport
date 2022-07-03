@@ -97,7 +97,7 @@ class FlaskThread:
         if answer:
             self.answers_to_proceed[client_id] = None
 
-            return jsonify([answer])
+            return jsonify(answer)
         else:
             # I would to kill guy that returned None!
             return jsonify([])
@@ -124,13 +124,12 @@ class FlaskThread:
 
             resp = requests.get(result_url, {'question': message_text})
 
-            rjs: dict = resp.json()
-            logging.warning(str(rjs))
+            most_similar: dict = resp.json()
 
-            if rjs.get("detail") != "Not Found" and rjs:
-                return jsonify(rjs)  # TODO remove this crunches
+            if len(most_similar) > 0:
+                return jsonify(most_similar)
 
         # Send to Telegram in case of no answer from NLP_router
         self.send_to_telegram(client_id, message_text)
 
-        return "[]"
+        return "OK"
