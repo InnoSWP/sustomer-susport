@@ -85,9 +85,20 @@ function setup() {
     const button = form.querySelector("button[value=submit]");
     button.onclick = () => submitForm(form, container);
     const refreshButton = (form.querySelector("button[value=refresh]"));
-    let container = document.querySelector("div#message-history");
+    const container = document.querySelector("div#message-history");
     document.body.appendChild(container);
     refreshButton.onclick = () => getUpdatesForMessages(container);
+    getUpdatesForMessages(container);
+    const clearButton = document.querySelector("button[value=clear]");
+    clearButton.onclick = () => {
+        localStorage.clear();
+        handler.deleteChildren(container);
+    };
+    pollingUpdates(container);
+}
+function pollingUpdates(container) {
+    getUpdatesForMessages(container);
+    setTimeout(pollingUpdates, 1000);
 }
 setup();
 //# sourceMappingURL=setup-form.js.map

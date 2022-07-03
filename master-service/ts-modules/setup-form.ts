@@ -114,9 +114,23 @@ function setup(): void {
   const refreshButton = <HTMLButtonElement>(
     form.querySelector("button[value=refresh]")
   );
-  let container = <HTMLElement>document.querySelector("div#message-history");
+  const container = <HTMLElement>document.querySelector("div#message-history");
   document.body.appendChild(container);
   refreshButton.onclick = () => getUpdatesForMessages(container);
+  getUpdatesForMessages(container);
+
+  const clearButton = document.querySelector(
+    "button[value=clear]"
+  ) as HTMLButtonElement;
+  clearButton.onclick = () => {
+    localStorage.clear();
+    handler.deleteChildren(container);
+  };
+  pollingUpdates(container);
 }
 
+function pollingUpdates(container: HTMLElement) {
+  getUpdatesForMessages(container);
+  setTimeout(pollingUpdates, 1000);
+}
 setup();
