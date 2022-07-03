@@ -180,7 +180,7 @@ class BotThread:
         if USE_NLP_ROUTER:
             try:
                 url = f'{NLP_ROUTER_URL}/new-question'
-                resp = requests.post(url, {
+                resp = requests.post(url, json={
                     'question': d.question_text,
                     'answer': d.answer_text,
                 })

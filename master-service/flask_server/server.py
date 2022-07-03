@@ -27,7 +27,7 @@ class FlaskThread:
             '/messages', view_func=self.messages_get, methods=['GET'])
 
     def thread2(self):
-        print('Flask T2')
+        print('Flask T2 AAAA')
         while True:
             res = self.conn.recv()
             self.received_text_message_from_tg(*res)
