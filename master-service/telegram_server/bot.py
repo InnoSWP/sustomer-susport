@@ -4,6 +4,7 @@ import logging
 import threading
 from typing import Optional, Union
 
+import requests
 import telegram
 from telegram.ext import MessageHandler, CommandHandler
 from telegram.ext import MessageHandler, Updater, filters, CallbackQueryHandler
@@ -14,6 +15,9 @@ from .utils import DialogEntity, IssueState, prepare_for_markdown_mode, \
 
 TG_TOKEN = os.getenv('TG_TOKEN', None)
 GROUP_CHAT_ID = os.getenv('GROUP_CHAT_ID', None)
+
+USE_NLP_ROUTER = os.getenv('USE_NLP_ROUTER', 'True').lower() == 'true'
+NLP_ROUTER_URL = os.getenv('NLP_ROUTER_URL', 'http://127.0.0.1:8080')
 
 class BotThread:
     dialogs: [DialogEntity] = []
@@ -172,6 +176,18 @@ class BotThread:
             message=get_issue_message_text(d, user_name),
             is_markdown=True
         )
+
+        if USE_NLP_ROUTER:
+            try:
+                url = f'{NLP_ROUTER_URL}/new-question'
+                resp = requests.post(url, {
+                    'question': d.question_text,
+                    'answer': d.answer_text,
+                })
+
+                logging.info(f'Made request to NLP: {resp.url}')
+            except Exception:
+                pass
 
         try:
             bot.edit_message_text(
