@@ -2,5 +2,9 @@
 {% block title %}awesome title{%endblock%}
 {% block body %}
 <h1> Hi, there </h1>
-<a href="/frame">go to frame</a>
+<p>This form is embedded! Check the source</p>
+<a href="/frame" style="font-size: 2em">go to frame</a>
+<div class="index__iframe_container">
+<iframe src="/frame" class="embedded-iframe" title="Embedded support form"></iframe>
+</div>
 {%endblock%}
