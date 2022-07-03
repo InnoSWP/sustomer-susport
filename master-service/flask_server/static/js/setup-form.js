@@ -41,7 +41,7 @@ function submitForm(form, container) {
         body.forEach((similarQuestion) => {
             return updateChatComposition({
                 author: handler.similarQuestionLabel,
-                text: `${similarQuestion.question}:\t\t${similarQuestion.answer}`,
+                text: `${similarQuestion.question}:\t\t\n${similarQuestion.answer}`,
             }, container);
         });
     });
@@ -95,6 +95,7 @@ function setup() {
         localStorage.clear();
         handler.deleteChildren(container);
     };
+    pollingUpdates(container);
 }
 function pollingUpdates(container) {
     getUpdatesForMessages(container);
