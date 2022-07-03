@@ -4,6 +4,7 @@ import logging
 import threading
 from typing import Optional, Union
 
+import requests
 import telegram
 from telegram.ext import MessageHandler, CommandHandler
 from telegram.ext import MessageHandler, Updater, filters, CallbackQueryHandler
@@ -14,6 +15,9 @@ from .utils import DialogEntity, IssueState, prepare_for_markdown_mode, \
 
 TG_TOKEN = os.getenv('TG_TOKEN', None)
 GROUP_CHAT_ID = os.getenv('GROUP_CHAT_ID', None)
+
+USE_NLP_ROUTER = os.getenv('USE_NLP_ROUTER', 'True').lower() == 'true'
+NLP_ROUTER_URL = os.getenv('NLP_ROUTER_URL', 'http://127.0.0.1:8080')
 
 class BotThread:
     dialogs: [DialogEntity] = []
@@ -135,10 +139,15 @@ class BotThread:
             message_text = f'You are assigned to the [client {d.client_id}]\n' \
                            f'with question:\n\n{d.question_text}'
 
-            update.effective_message.edit_text(
-                text=get_edit_text(d),
-                parse_mode=telegram.ParseMode.MARKDOWN_V2
-            )
+            try:
+                update.effective_message.edit_text(
+                    text=get_edit_text(d),
+                    parse_mode=telegram.ParseMode.MARKDOWN_V2
+                )
+            except Exception:
+                update.effective_message.edit_text(
+                    text=get_edit_text(d)
+                )
 
             self.send_text_message(
                 user_chat_id,
@@ -168,12 +177,31 @@ class BotThread:
             is_markdown=True
         )
 
-        bot.edit_message_text(
-            text=get_edit_text(d),
-            chat_id=GROUP_CHAT_ID,
-            message_id=d.issue_message_id,
-            parse_mode=telegram.ParseMode.MARKDOWN_V2
-        )
+        if USE_NLP_ROUTER:
+            try:
+                url = f'{NLP_ROUTER_URL}/new-question'
+                resp = requests.post(url, json={
+                    'question': d.question_text,
+                    'answer': d.answer_text,
+                })
+
+                logging.info(f'Made request to NLP: {resp.url}')
+            except Exception:
+                pass
+
+        try:
+            bot.edit_message_text(
+                text=get_edit_text(d),
+                chat_id=GROUP_CHAT_ID,
+                message_id=d.issue_message_id,
+                parse_mode=telegram.ParseMode.MARKDOWN_V2
+            )
+        except Exception:
+            bot.edit_message_text(
+                text=get_edit_text(d),
+                chat_id=GROUP_CHAT_ID,
+                message_id=d.issue_message_id
+            )
 
     def on_submit_button(self, update: telegram.Update, context: telegram.ext.CallbackContext):
         chat_id = update.effective_chat.id

@@ -27,7 +27,7 @@ class FlaskThread:
             '/messages', view_func=self.messages_get, methods=['GET'])
 
     def thread2(self):
-        print('Flask T2')
+        print('Flask T2 AAAA')
         while True:
             res = self.conn.recv()
             self.received_text_message_from_tg(*res)
@@ -35,7 +35,9 @@ class FlaskThread:
     def received_text_message_from_tg(self, client_id: int, message_text: str):
         logging.info(f'Received text message to [Client - {client_id}] : {message_text}')
 
-        if client_id in self.answers_to_proceed:
+        print(self.answers_to_proceed)
+
+        if self.answers_to_proceed.get(client_id, None) is not None:
             self.answers_to_proceed[client_id].append(message_text)
         else:
             self.answers_to_proceed[client_id] = [message_text, ]
@@ -91,13 +93,13 @@ class FlaskThread:
 
         client_id: int = int(request.cookies.get('userID'))
 
-        answer = self.answers_to_proceed.get(client_id, None)
-        print('answer', answer)
+        answers = self.answers_to_proceed.get(client_id, None)
+        print('answers', answers)
 
-        if answer:
+        if answers:
             self.answers_to_proceed[client_id] = None
 
-            return jsonify([answer])
+            return jsonify(answers)
         else:
             # I would to kill guy that returned None!
             return jsonify([])
@@ -123,14 +125,14 @@ class FlaskThread:
             result_url = f'{NLP_ROUTER_URL}/similar'
 
             resp = requests.get(result_url, {'question': message_text})
+            logging.info(f'Made request to NLP: {resp.url}')
 
-            rjs: dict = resp.json()
-            logging.warning(str(rjs))
+            most_similar: dict = resp.json()
 
-            if rjs.get("detail") != "Not Found" and rjs:
-                return jsonify(rjs)  # TODO remove this crunches
+            if len(most_similar) > 0:
+                return jsonify(most_similar)
 
         # Send to Telegram in case of no answer from NLP_router
         self.send_to_telegram(client_id, message_text)
 
-        return "[]"
+        return "OK"

@@ -13,11 +13,11 @@ EXPOSE 5000/tcp
 EXPOSE 5000/udp
 
 # web server
-COPY ./master_router.py /code/
-COPY ./flask_server /code/flask_server
+# COPY ./master_router.py /code/
+# COPY ./flask_server /code/flask_server
 # telegram
-COPY ./tg_router.py /code
-COPY ./telegram_server /code/telegram_server
+# COPY ./tg_router.py /code
+# COPY ./telegram_server /code/telegram_server
 
 CMD ["python", "master_router.py"]
 
