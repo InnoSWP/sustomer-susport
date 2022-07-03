@@ -35,7 +35,7 @@ class FlaskThread:
     def received_text_message_from_tg(self, client_id: int, message_text: str):
         logging.info(f'Received text message to [Client - {client_id}] : {message_text}')
 
-        if client_id in self.answers_to_proceed:
+        if self.answers_to_proceed.get(client_id, None) is not None:
             self.answers_to_proceed[client_id].append(message_text)
         else:
             self.answers_to_proceed[client_id] = [message_text, ]
