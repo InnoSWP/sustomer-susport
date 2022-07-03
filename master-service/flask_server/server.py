@@ -1,4 +1,3 @@
-import distutils.util
 import logging
 import os
 import threading
@@ -7,6 +6,7 @@ import requests
 from flask import Flask, jsonify, render_template, request, make_response
 
 USE_NLP_ROUTER = os.getenv('USE_NLP_ROUTER', 'True').lower() == 'true'
+NLP_ROUTER_URL = os.getenv('NLP_ROUTER_URL', 'http://127.0.0.1:8080')
 
 class FlaskThread:
     answers_to_proceed: {int: list[str]} = dict()
@@ -120,18 +120,16 @@ class FlaskThread:
         message_text = data.get('text', None)
 
         if USE_NLP_ROUTER:
-            base_nlp_router_url = os.getenv("NLP_ROUTER_URL", "http://127.0.0.1:8080")
-            similar_endpoint = '/similar'
-            result_url = f'{base_nlp_router_url}{similar_endpoint}'
+            result_url = f'{NLP_ROUTER_URL}/similar'
 
             resp = requests.get(result_url, {'question': message_text})
 
-            rjs : dict = resp.json()
-            logging.warn(str(rjs))
-            # if len(resp.json()) != 0:
-            if rjs.get("detail") != "Not Found" and rjs != None:
-                # TODO remove this crunches
-                return jsonify(rjs)
+            rjs: dict = resp.json()
+            logging.warning(str(rjs))
+
+            if rjs.get("detail") != "Not Found" and rjs:
+                return jsonify(rjs)  # TODO remove this crunches
+
         # Send to Telegram in case of no answer from NLP_router
         self.send_to_telegram(client_id, message_text)
 

@@ -2,7 +2,7 @@ import os
 import json
 import logging
 import threading
-from typing import Optional
+from typing import Optional, Union
 
 import telegram
 from telegram.ext import MessageHandler
@@ -32,7 +32,7 @@ class BotThread:
 
     def send_text_message(
             self,
-            chat_id: int,
+            chat_id: Union[int, str],
             message: str,
             reply_markup: telegram.ReplyMarkup = None,
             is_markdown=False
