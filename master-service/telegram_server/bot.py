@@ -135,10 +135,15 @@ class BotThread:
             message_text = f'You are assigned to the [client {d.client_id}]\n' \
                            f'with question:\n\n{d.question_text}'
 
-            update.effective_message.edit_text(
-                text=get_edit_text(d),
-                parse_mode=telegram.ParseMode.MARKDOWN_V2
-            )
+            try:
+                update.effective_message.edit_text(
+                    text=get_edit_text(d),
+                    parse_mode=telegram.ParseMode.MARKDOWN_V2
+                )
+            except Exception:
+                update.effective_message.edit_text(
+                    text=get_edit_text(d)
+                )
 
             self.send_text_message(
                 user_chat_id,
@@ -168,12 +173,19 @@ class BotThread:
             is_markdown=True
         )
 
-        bot.edit_message_text(
-            text=get_edit_text(d),
-            chat_id=GROUP_CHAT_ID,
-            message_id=d.issue_message_id,
-            parse_mode=telegram.ParseMode.MARKDOWN_V2
-        )
+        try:
+            bot.edit_message_text(
+                text=get_edit_text(d),
+                chat_id=GROUP_CHAT_ID,
+                message_id=d.issue_message_id,
+                parse_mode=telegram.ParseMode.MARKDOWN_V2
+            )
+        except Exception:
+            bot.edit_message_text(
+                text=get_edit_text(d),
+                chat_id=GROUP_CHAT_ID,
+                message_id=d.issue_message_id
+            )
 
     def on_submit_button(self, update: telegram.Update, context: telegram.ext.CallbackContext):
         chat_id = update.effective_chat.id
