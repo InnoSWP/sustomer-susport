@@ -135,4 +135,4 @@ class FlaskThread:
         # Send to Telegram in case of no answer from NLP_router
         self.send_to_telegram(client_id, message_text)
 
-        return "OK"
+        return "[]"

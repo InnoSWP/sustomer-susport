@@ -10,7 +10,7 @@ from telegram.ext import MessageHandler, CommandHandler
 from telegram.ext import MessageHandler, Updater, filters, CallbackQueryHandler
 
 
-from .utils import DialogEntity, IssueState, prepare_for_markdown_mode, \
+from .utils import DialogEntity, IssueState, \
     search_by, get_issue_message_text, keyboard_from_dialog, CallbackQueryType
 
 TG_TOKEN = os.getenv('TG_TOKEN', None)
@@ -39,21 +39,13 @@ class BotThread:
             chat_id: Union[int, str],
             message: str,
             reply_markup: telegram.ReplyMarkup = None,
-            is_markdown=False
     ):
-        try:
-            return self.updater.bot.send_message(
-                chat_id=chat_id,
-                text=prepare_for_markdown_mode(message) if is_markdown else message,
-                reply_markup=reply_markup,
-                parse_mode=telegram.ParseMode.MARKDOWN_V2 if is_markdown else None
-            )
-        except Exception:
-            return self.updater.bot.send_message(
-                chat_id=chat_id,
-                text=message,
-                reply_markup=reply_markup,
-            )
+        return self.updater.bot.send_message(
+            chat_id=chat_id,
+            text=message,
+            reply_markup=reply_markup,
+            parse_mode=telegram.ParseMode.HTML
+        )
 
     def received_message_from_frontend(self, client_id: int, message: str):
         logging.info(f'TG: Received message from [FRONT-END - {client_id}] : {message}')
@@ -73,7 +65,6 @@ class BotThread:
             GROUP_CHAT_ID,
             message=get_issue_message_text(d),
             reply_markup=keyboard_from_dialog('Take request', d, CallbackQueryType.ASSIGN, None),
-            is_markdown=True
         )
 
         d.issue_message_id = message.message_id
@@ -116,13 +107,9 @@ class BotThread:
 
         user_chat_id = update.callback_query.from_user.id
         message_id = update.effective_message.message_id
-        user_name = update.callback_query.from_user.name.replace("_", "\\_")
+        user_name = update.callback_query.from_user.name
 
         existing_user_dialogs = self.existing_dialogs(user_chat_id)
-
-        get_edit_text = lambda d: prepare_for_markdown_mode(
-            get_issue_message_text(d, user_name)
-        )
 
         if int(btn_type) == CallbackQueryType.ASSIGN:
             group_chat_id = update.effective_chat.id
@@ -139,15 +126,10 @@ class BotThread:
             message_text = f'You are assigned to the [client {d.client_id}]\n' \
                            f'with question:\n\n{d.question_text}'
 
-            try:
-                update.effective_message.edit_text(
-                    text=get_edit_text(d),
-                    parse_mode=telegram.ParseMode.MARKDOWN_V2
-                )
-            except Exception:
-                update.effective_message.edit_text(
-                    text=get_edit_text(d)
-                )
+            update.effective_message.edit_text(
+                text=get_issue_message_text(d, user_name),
+                parse_mode=telegram.ParseMode.HTML
+            )
 
             self.send_text_message(
                 user_chat_id,
@@ -161,10 +143,7 @@ class BotThread:
                        d: DialogEntity,
                        user_chat_id: Union[str, int],
                        user_name: str,
-                       bot: telegram.Bot,):
-        get_edit_text = lambda d: prepare_for_markdown_mode(
-            get_issue_message_text(d, user_name)
-        )
+                       bot: telegram.Bot):
 
         if d.state != IssueState.progress:
             return
@@ -174,7 +153,6 @@ class BotThread:
         self.send_text_message(
             chat_id=user_chat_id,
             message=get_issue_message_text(d, user_name),
-            is_markdown=True
         )
 
         if USE_NLP_ROUTER:
@@ -189,19 +167,12 @@ class BotThread:
             except Exception:
                 pass
 
-        try:
-            bot.edit_message_text(
-                text=get_edit_text(d),
-                chat_id=GROUP_CHAT_ID,
-                message_id=d.issue_message_id,
-                parse_mode=telegram.ParseMode.MARKDOWN_V2
-            )
-        except Exception:
-            bot.edit_message_text(
-                text=get_edit_text(d),
-                chat_id=GROUP_CHAT_ID,
-                message_id=d.issue_message_id
-            )
+        bot.edit_message_text(
+            text=get_issue_message_text(d, user_name),
+            chat_id=GROUP_CHAT_ID,
+            message_id=d.issue_message_id,
+            parse_mode=telegram.ParseMode.HTML
+        )
 
     def on_submit_button(self, update: telegram.Update, context: telegram.ext.CallbackContext):
         chat_id = update.effective_chat.id

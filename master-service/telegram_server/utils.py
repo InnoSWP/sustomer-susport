@@ -64,25 +64,23 @@ class DialogEntity:
     state: IssueState = IssueState.open
 
 
-def get_issue_message_text(dialog: DialogEntity, user_name=None):
-    issue_line = f'*Issue #{dialog.issue_id}*\n\n'
-    question_line = f'Question: _"{dialog.question_text}"_\n\n'
+def get_issue_message_text(dialog: DialogEntity, user_name=None) -> str:
+    def text_builder(include_answers=False):
+        issue_line = f'<b>Issue #{dialog.issue_id}</b>'
+        question_line = f'Question: "<i>{dialog.question_text}</i>"'
+        answers_line = f'Answers:\n{dialog.answer_text}' if include_answers else ''
+        status_line = f'status: <b>{dialog.state}</b>' + (f' by {user_name}' if user_name else '')
 
-    if dialog.state == IssueState.open:
-        return f'{issue_line}' \
-               f'{question_line}' \
-               f'status: *OPEN*'
-    elif dialog.state == IssueState.progress and dialog.volunteer_chat_id:
-        return f'{issue_line}' \
-               f'{question_line}' \
-               f'status: *IN PROGRESS* by {user_name}'
-    elif dialog.state == IssueState.closed:
-        return f'{issue_line}' \
-               f'{question_line}' \
-               f'Answers:\n{dialog.answer_text}\n\n' \
-               f'status: *CLOSED* by {user_name}'
-    else:
-        return f'LOL why does this happen?'
+        return '\n\n'.join(list(filter(lambda x: x != '', [
+            issue_line,
+            question_line,
+            answers_line,
+            status_line
+        ])))
+
+    return text_builder(
+        include_answers=(dialog.state == IssueState.closed)
+    )
 
 
 T = TypeVar('T')
@@ -94,7 +92,7 @@ def search_by(entities_list: [T], field, value) -> Optional[list[T]]:
         entities_list
     ))
 
-    if len(l) >= 1:  # TODO manage it
+    if len(l) >= 1:
         return l[-1]
     else:
         return None
@@ -107,11 +105,3 @@ def keyboard_from_dialog(title: str, dialog: DialogEntity, btn_type: CallbackQue
         'group_message_id': group_message_id
     })
     return get_button_markup([title, btn_data])
-
-
-def prepare_for_markdown_mode(message: str):
-    message = message.replace('#', '\#')
-    message = message.replace('-', '\-')
-    message = message.replace('.', '\.')
-
-    return message
