@@ -5,7 +5,7 @@ import threading
 from typing import Optional, Union
 
 import telegram
-from telegram.ext import MessageHandler
+from telegram.ext import MessageHandler, CommandHandler
 from telegram.ext import MessageHandler, Updater, filters, CallbackQueryHandler
 
 
@@ -146,28 +146,54 @@ class BotThread:
                 reply_markup=keyboard_from_dialog('Mark as completed', d, CallbackQueryType.CLOSE, message_id)
             )
         elif int(btn_type) == CallbackQueryType.CLOSE:
-            if d.state != IssueState.progress:
-                return
+            self.on_issue_close(d, user_chat_id, user_name, context.bot)
 
-            d.state = IssueState.closed
+    def on_issue_close(self,
+                       d: DialogEntity,
+                       user_chat_id: Union[str, int],
+                       user_name: str,
+                       bot: telegram.Bot,):
+        get_edit_text = lambda d: prepare_for_markdown_mode(
+            get_issue_message_text(d, user_name)
+        )
 
-            self.send_text_message(
-                chat_id=user_chat_id,
-                message=get_issue_message_text(d, user_name),
-                is_markdown=True
-            )
+        if d.state != IssueState.progress:
+            return
 
-            context.bot.edit_message_text(
-                text=get_edit_text(d),
-                chat_id=GROUP_CHAT_ID,
-                message_id=d.issue_message_id,
-                parse_mode=telegram.ParseMode.MARKDOWN_V2
-            )
+        d.state = IssueState.closed
+
+        self.send_text_message(
+            chat_id=user_chat_id,
+            message=get_issue_message_text(d, user_name),
+            is_markdown=True
+        )
+
+        bot.edit_message_text(
+            text=get_edit_text(d),
+            chat_id=GROUP_CHAT_ID,
+            message_id=d.issue_message_id,
+            parse_mode=telegram.ParseMode.MARKDOWN_V2
+        )
+
+    def on_submit_button(self, update: telegram.Update, context: telegram.ext.CallbackContext):
+        chat_id = update.effective_chat.id
+        user_name = update.effective_user.name.replace("_", "\\_")
+
+        existing_dialogs = self.existing_dialogs(chat_id)
+        cur_dialog = existing_dialogs[-1]
+
+        self.on_issue_close(
+            cur_dialog,
+            chat_id,
+            user_name,
+            context.bot
+        )
 
     def polling(self):
         print('TG T1 (polling)')
 
         handlers = [
+            CommandHandler('submit', self.on_submit_button),
             MessageHandler(filters.Filters.text, self.text_handler),
             CallbackQueryHandler(self.callback_query_handler),
         ]
