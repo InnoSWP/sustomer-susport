@@ -1,18 +1,18 @@
 version: '3'
 
 services:
-  # nlp-router:
-  #   build: ./nlp-service
-  #   # image: dsnfljasdfjlajsdfjl/nlp-service:nlp-service
-  #   volumes:
-  #     - ./nlp-service:/code
-  #   ports:
-  #     - 8080:8080
-  #   env_file: .env
+  nlp-router:
+    build: ./nlp-service
+    # image: dsnfljasdfjlajsdfjl/nlp-service:latest
+    volumes:
+      - ./nlp-service:/code
+    ports:
+      - 8080:8080
+    env_file: .env
 
   master-router:
     build: ./master-service
-    # image: dsnfljasdfjlajsdfjl/master-service:master-service
+    # image: dsnfljasdfjlajsdfjl/master-service:latest
     volumes:
       - ./master-service:/code
     ports:
