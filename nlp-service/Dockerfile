@@ -1,20 +1,19 @@
-FROM python:3.9
+FROM python:3.9-slim
 
 WORKDIR /code
 
 
 # install requirements
 COPY ./requirements.txt /code
-RUN pip install pip --upgrade
-# RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
-RUN pip --no-cache-dir install -r /code/requirements.txt
+COPY ./nlp/similarity_providers.py /code/nlp/similarity_providers.py
+
+RUN pip install pip --upgrade --no-cache-dir &&\
+			pip --no-cache-dir install -r /code/requirements.txt &&\
+			python ./nlp/similarity_providers.py
 
 EXPOSE 8080/tcp
 EXPOSE 8080/udp
 
-COPY ./nlp/similarity_providers.py /code/nlp/similarity_providers.py
-# Initialize NLP
-RUN python ./nlp/similarity_providers.py
 
 # nlp module 
 COPY ./nlp /code/nlp

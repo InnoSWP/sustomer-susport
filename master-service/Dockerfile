@@ -1,13 +1,10 @@
-FROM python:3.9
+FROM python:3.9-slim
 
 WORKDIR /code
 
-
 # install requirements
 COPY ./requirements.txt /code
-RUN pip install pip --upgrade
-# RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
-RUN pip install -r /code/requirements.txt
+RUN pip install pip --upgrade --no-cache-dir && pip install --no-cache-dir  -r /code/requirements.txt
 
 EXPOSE 5000/tcp
 EXPOSE 5000/udp
